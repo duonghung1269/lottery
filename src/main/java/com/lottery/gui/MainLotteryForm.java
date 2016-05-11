@@ -5,6 +5,7 @@
  */
 package com.lottery.gui;
 
+import com.lottery.service.BuyerService;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  *
@@ -20,12 +23,17 @@ import javax.swing.JLabel;
 public class MainLotteryForm extends javax.swing.JFrame {
 
     private List<Integer> inputNumbers = new ArrayList<>();
+    
+    @Autowired(required=true)
+    private BuyerService buyerService;
+    
     /**
      * Creates new form MainLotteryForm
      */
     public MainLotteryForm() {
         initComponents();
         ballNumbersPanel.setLayout(new BoxLayout(ballNumbersPanel, BoxLayout.Y_AXIS));
+        System.out.print(buyerService);
     }
 
     /**
@@ -283,8 +291,12 @@ public class MainLotteryForm extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
 
+        String[] contextPaths = new String[] {"/applicationContext.xml"};
+        new ClassPathXmlApplicationContext(contextPaths);
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new MainLotteryForm().setVisible(true);
             }
