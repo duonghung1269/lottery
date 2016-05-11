@@ -4,8 +4,8 @@
  */
 package com.lottery.dao.impl;
 
-import freelancerlottery.dao.BuyerDao;
-import freelancerlottery.model.Buyer;
+import com.lottery.dao.BuyerDao;
+import com.lottery.model.Buyer;
 import org.springframework.stereotype.Repository;
 
 /**

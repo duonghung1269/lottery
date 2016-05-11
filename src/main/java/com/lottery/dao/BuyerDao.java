@@ -4,7 +4,8 @@
  */
 package com.lottery.dao;
 
-import freelancerlottery.model.Buyer;
+import com.lottery.model.Buyer;
+
 
 /**
  *

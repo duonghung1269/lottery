@@ -4,8 +4,8 @@
  */
 package com.lottery.service.impl;
 
-import freelancerlottery.dao.GenericDao;
-import freelancerlottery.service.GenericService;
+import com.lottery.dao.GenericDao;
+import com.lottery.service.GenericService;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
