@@ -15,4 +15,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class BuyerDaoImpl extends GenericDaoImpl<Buyer, Long> implements BuyerDao{
     
+//    public BuyerDaoImpl() {
+//        super();
+//        System.out.print("buyerDaoimpl");
+//    }
+    
 }

@@ -7,6 +7,8 @@ package com.lottery.dao;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistryBuilder;
 
 /**
  * Hibernate Utility class with a convenient method to get Session Factory
@@ -22,7 +24,14 @@ public class LotteryHibernateUtil {
         try {
             // Create the SessionFactory from standard (hibernate.cfg.xml) 
             // config file.
-            sessionFactory = new AnnotationConfiguration().configure().buildSessionFactory();
+//            sessionFactory = new AnnotationConfiguration().configure().buildSessionFactory();
+            Configuration configuration = new Configuration();
+        configuration.configure("hibernate.cfg.xml");
+
+        ServiceRegistryBuilder serviceRegistryBuilder = new ServiceRegistryBuilder()
+                .applySettings(configuration.getProperties());
+        sessionFactory = configuration.buildSessionFactory(serviceRegistryBuilder
+                .buildServiceRegistry());
         } catch (Throwable ex) {
             // Log the exception. 
             System.err.println("Initial SessionFactory creation failed." + ex);

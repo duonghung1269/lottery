@@ -5,6 +5,7 @@
 package com.lottery.dao.impl;
 
 import com.lottery.dao.GenericDao;
+import com.lottery.dao.LotteryHibernateUtil;
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -26,7 +27,7 @@ public abstract class GenericDaoImpl<E, K extends Serializable>
 
     protected final Logger logger = Logger.getLogger(this.getClass());
     @Autowired
-    private SessionFactory sessionFactory;
+    private SessionFactory sessionFactory = LotteryHibernateUtil.getSessionFactory();
     protected Class<? extends E> daoType;
 
     /**
@@ -39,6 +40,7 @@ public abstract class GenericDaoImpl<E, K extends Serializable>
         Type t = getClass().getGenericSuperclass();
         ParameterizedType pt = (ParameterizedType) t;
         daoType = (Class) pt.getActualTypeArguments()[0];
+//        sessionFactory = LotteryHibernateUtil.getSessionFactory();
     }
 
     protected Session currentSession() {
@@ -95,6 +97,9 @@ public abstract class GenericDaoImpl<E, K extends Serializable>
         if (logger.isDebugEnabled()) {
             logger.debug(getLogPrefix() + "[" + daoType.getName() + "][getAll]");
         }
-        return currentSession().createCriteria(daoType).list();
+        currentSession().beginTransaction();
+        final List list = currentSession().createCriteria(daoType).list();
+        currentSession().getTransaction().commit();
+        return list;
     }
 }

@@ -5,35 +5,53 @@
  */
 package com.lottery.gui;
 
+import com.lottery.dao.BuyerDao;
+import com.lottery.dao.impl.BuyerDaoImpl;
+import com.lottery.model.Buyer;
 import com.lottery.service.BuyerService;
+import com.lottery.service.impl.BuyerServiceImpl;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author duonghung1269
  */
+@ComponentScan
+@Component
 public class MainLotteryForm extends javax.swing.JFrame {
 
     private List<Integer> inputNumbers = new ArrayList<>();
-    
-    @Autowired(required=true)
+
+//    String[] contextPaths = new String[]{"/applicationContext.xml"};
+//    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(contextPaths);
+
+//    @Autowired
     private BuyerService buyerService;
-    
+
     /**
      * Creates new form MainLotteryForm
      */
     public MainLotteryForm() {
         initComponents();
         ballNumbersPanel.setLayout(new BoxLayout(ballNumbersPanel, BoxLayout.Y_AXIS));
-        System.out.print(buyerService);
+//        buyerService = ctx.getBean(BuyerService.class);
+        System.out.print(buyerService); // always null :'(
+//        buyerService = new BuyerServiceImpl();
+        
+        BuyerDao dao = new BuyerDaoImpl();
+        List<Buyer> buyers = dao.getAll();
+        System.out.print(buyers);
     }
 
     /**
@@ -256,7 +274,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
 //        numberLbl.setPreferredSize(new Dimension(400, 100));
 //        numberLbl.setBackground(Color.white);
         numberLbl.setForeground(Color.red);
-        setFont(numberLbl.getFont().deriveFont(150f)); 
+        setFont(numberLbl.getFont().deriveFont(150f));
         numberLbl.setFont(new Font("Serif", Font.PLAIN, 30));
         ballNumbersPanel.add(numberLbl);
         ballNumbersPanel.revalidate();
@@ -291,9 +309,9 @@ public class MainLotteryForm extends javax.swing.JFrame {
         //</editor-fold>
         //</editor-fold>
 
-        String[] contextPaths = new String[] {"/applicationContext.xml"};
-        new ClassPathXmlApplicationContext(contextPaths);
-        
+//        String[] contextPaths = new String[]{"/applicationContext.xml"};
+//        new ClassPathXmlApplicationContext(contextPaths);
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override

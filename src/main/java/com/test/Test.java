@@ -15,13 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class Test {
     
-    @Autowired(required=true)
-    private BuyerService buyerService;
-    
     public static void main(String... args) {
-        Test t = new Test();
-        
-        System.out.print(t.buyerService);
-        System.out.print("hahaa");
+        Launcher launcher = new Launcher();
+        launcher.launch();
     }
 }

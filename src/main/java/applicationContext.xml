@@ -10,7 +10,8 @@
         http://www.springframework.org/schema/tx/spring-tx.xsd
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-    <context:component-scan base-package="com"/>
+    <context:component-scan base-package="com.lottery"/>
+    <context:annotation-config  />
     <tx:annotation-driven transaction-manager="transactionManager"/>
     
     <bean id="transactionManager"
@@ -22,7 +23,7 @@
     <bean id="sessionFactory"
           class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
-        <property name="packagesToScan" value="olyanren.java.web.spring.generic.dao.model"/>
+        <property name="packagesToScan" value="com.lottery.dao.impl"/>
         <property name="hibernateProperties">
             <props>
                 <prop key="hibernate.hbm2ddl.auto">update</prop>
@@ -35,16 +36,24 @@
 
     </bean>
 
-    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
           destroy-method="close">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
         <property name="url" value="jdbc:mysql://localhost:3306/lottery?autoReconnect=true&amp;
                   useUnicode=true&amp;createDatabaseIfNotExist=true&amp;characterEncoding=utf-8"/>
         <property name="username" value="root"/>
-        <property name="password" value="123456"/>
+        <!--<property name="password" value="123456"/>-->
 
     </bean>
     
+    <bean id="mainLotteryForm" class="com.lottery.gui.MainLotteryForm" />
+    
+        <bean id="buyerDao" class="com.lottery.dao.impl.BuyerDaoImpl" />
+    
     <bean id="buyerService" class="com.lottery.service.impl.BuyerServiceImpl" />
-    <bean id="buyerDao" class="com.lottery.dao.impl.BuyerDaoImpl" />
+    
+    
+    
+
+    
 </beans>

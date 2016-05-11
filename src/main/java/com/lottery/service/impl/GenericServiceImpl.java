@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public abstract class GenericServiceImpl<E, K>
         implements GenericService<E, K> {
 
-    private GenericDao<E, K> genericDao;
+    protected GenericDao<E, K> genericDao;
 
     public GenericServiceImpl(GenericDao<E, K> genericDao) {
         this.genericDao = genericDao;

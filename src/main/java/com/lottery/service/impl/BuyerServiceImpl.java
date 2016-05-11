@@ -5,8 +5,11 @@
 package com.lottery.service.impl;
 
 
+import com.lottery.dao.BuyerDao;
+import com.lottery.dao.impl.BuyerDaoImpl;
 import com.lottery.model.Buyer;
 import com.lottery.service.BuyerService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,4 +19,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class BuyerServiceImpl extends GenericServiceImpl<Buyer, Long> implements BuyerService{
     
+//    @Autowired
+    private BuyerDao buyerDao = new BuyerDaoImpl();
+    
+//    public BuyerServiceImpl() {
+//        super();
+//        this.genericDao = buyerDao;
+//    }
 }
