@@ -46,7 +46,7 @@
 
     </bean>
     
-    <bean id="mainLotteryForm" class="com.lottery.gui.MainLotteryForm" />
+    <!--<bean id="mainLotteryForm" class="com.lottery.gui.MainLotteryForm" />-->
     
         <bean id="buyerDao" class="com.lottery.dao.impl.BuyerDaoImpl" />
     

@@ -6,13 +6,17 @@
 package com.lottery.gui;
 
 import com.lottery.dao.BuyerDao;
+import com.lottery.dao.TicketDao;
 import com.lottery.dao.impl.BuyerDaoImpl;
+import com.lottery.dao.impl.TicketDaoImpl;
 import com.lottery.model.Buyer;
 import com.lottery.service.BuyerService;
 import com.lottery.service.impl.BuyerServiceImpl;
+import com.lottery.util.LotteryUtils;
 import java.awt.Color;
 import java.awt.Font;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -20,23 +24,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 /**
  *
  * @author duonghung1269
  */
-@ComponentScan
+//@ComponentScan()
 @Component
+//@Configuration
 public class MainLotteryForm extends javax.swing.JFrame {
 
     private List<Integer> inputNumbers = new ArrayList<>();
-
 //    String[] contextPaths = new String[]{"/applicationContext.xml"};
 //    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(contextPaths);
-
-//    @Autowired
+    @Autowired
     private BuyerService buyerService;
 
     /**
@@ -48,10 +53,10 @@ public class MainLotteryForm extends javax.swing.JFrame {
 //        buyerService = ctx.getBean(BuyerService.class);
         System.out.print(buyerService); // always null :'(
 //        buyerService = new BuyerServiceImpl();
-        
-        BuyerDao dao = new BuyerDaoImpl();
-        List<Buyer> buyers = dao.getAll();
-        System.out.print(buyers);
+
+//        BuyerDao dao = new BuyerDaoImpl();
+//        List<Buyer> buyers = dao.getAll();
+//        System.out.print(buyers);
     }
 
     /**
@@ -69,10 +74,9 @@ public class MainLotteryForm extends javax.swing.JFrame {
         jTextField1 = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jTextField2 = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
+        btnBuyTicket = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jTextField4 = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
@@ -90,10 +94,10 @@ public class MainLotteryForm extends javax.swing.JFrame {
 
         jLabel2.setText("IC No.");
 
-        jButton1.setText("Buy");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnBuyTicket.setText("Buy");
+        btnBuyTicket.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnBuyTicketActionPerformed(evt);
             }
         });
 
@@ -106,12 +110,6 @@ public class MainLotteryForm extends javax.swing.JFrame {
 
         jLabel3.setText("From Date");
 
-        jTextField3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField3ActionPerformed(evt);
-            }
-        });
-
         jLabel4.setText("To Date");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -123,9 +121,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(18, 18, 18))
+                            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addComponent(jLabel2)
                                 .addGap(15, 15, 15)))
@@ -137,12 +133,11 @@ public class MainLotteryForm extends javax.swing.JFrame {
                             .addComponent(jLabel4))
                         .addGap(18, 18, 18)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnBuyTicket, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                 .addComponent(jTextField1)
                                 .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jTextField4, javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(jTextField3, javax.swing.GroupLayout.Alignment.TRAILING)))))
+                                .addComponent(jTextField4, javax.swing.GroupLayout.Alignment.TRAILING)))))
                 .addContainerGap(427, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -156,10 +151,8 @@ public class MainLotteryForm extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(11, 11, 11)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(14, 14, 14)
+                .addComponent(jLabel3)
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
@@ -167,9 +160,11 @@ public class MainLotteryForm extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton2)
-                    .addComponent(jButton1))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(btnBuyTicket))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
+
+        btnBuyTicket.getAccessibleContext().setAccessibleName("btnBuyTicket");
 
         jTabbedPane2.addTab("tab1", jPanel1);
 
@@ -200,7 +195,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
                         .addComponent(inputNumberTf, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(submitInputBtn)))
-                .addContainerGap(388, Short.MAX_VALUE))
+                .addContainerGap(406, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -211,7 +206,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
                     .addComponent(inputNumberTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(submitInputBtn))
                 .addGap(33, 33, 33)
-                .addComponent(ballNumbersPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(ballNumbersPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 84, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -258,13 +253,23 @@ public class MainLotteryForm extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void btnBuyTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuyTicketActionPerformed
+        TicketDao ticketDao = new TicketDaoImpl();
+        Date today = new Date();
+        Date startDate = LotteryUtils.getNextDate(today);
+        int startDay = LotteryUtils.getDayOfMonth(startDate);
+        int maxDayOfMonth = LotteryUtils.getLastDayOfMonth(startDate);
 
-    private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField3ActionPerformed
+        Date queryDate = startDate;
+        for (int dayOfMonth = startDay; dayOfMonth <= maxDayOfMonth; dayOfMonth++) {
+            List<String> firstLines = ticketDao.findByColumn("first_line", queryDate);
+            List<String> secondLines = ticketDao.findByColumn("second_line", queryDate);
+            List<String> thirdLines = ticketDao.findByColumn("third_line", queryDate);
+            
+            queryDate = LotteryUtils.getNextDate(queryDate);
+        }
+
+    }//GEN-LAST:event_btnBuyTicketActionPerformed
 
     private void submitInputBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitInputBtnActionPerformed
         Integer number = Integer.parseInt(inputNumberTf.getText());
@@ -311,6 +316,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
 
 //        String[] contextPaths = new String[]{"/applicationContext.xml"};
 //        new ClassPathXmlApplicationContext(contextPaths);
+//        System.out.print("");
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -320,11 +326,10 @@ public class MainLotteryForm extends javax.swing.JFrame {
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ballNumbersPanel;
+    private javax.swing.JButton btnBuyTicket;
     private javax.swing.JTextField inputNumberTf;
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -337,7 +342,6 @@ public class MainLotteryForm extends javax.swing.JFrame {
     private javax.swing.JTabbedPane jTabbedPane2;
     private javax.swing.JTextField jTextField1;
     private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JButton submitInputBtn;
     // End of variables declaration//GEN-END:variables
