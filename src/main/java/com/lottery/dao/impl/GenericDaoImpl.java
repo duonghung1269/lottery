@@ -97,9 +97,9 @@ public abstract class GenericDaoImpl<E, K extends Serializable>
         if (logger.isDebugEnabled()) {
             logger.debug(getLogPrefix() + "[" + daoType.getName() + "][getAll]");
         }
-        currentSession().beginTransaction();
+//        currentSession().beginTransaction();
         final List list = currentSession().createCriteria(daoType).list();
-        currentSession().getTransaction().commit();
+//        currentSession().getTransaction().commit();
         return list;
     }
 }

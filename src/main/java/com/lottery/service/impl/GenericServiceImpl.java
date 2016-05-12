@@ -21,6 +21,8 @@ public abstract class GenericServiceImpl<E, K>
 
     protected GenericDao<E, K> genericDao;
 
+    public abstract void setGenericDao(GenericDao<E, K> genericDao);
+    
     public GenericServiceImpl(GenericDao<E, K> genericDao) {
         this.genericDao = genericDao;
     }

@@ -64,9 +64,9 @@
     
     <!--<bean id="mainLotteryForm" class="com.lottery.gui.MainLotteryForm" />-->
     
-    <bean id="buyerDao" class="com.lottery.dao.impl.BuyerDaoImpl" />
+<!--    <bean id="buyerDao" class="com.lottery.dao.impl.BuyerDaoImpl" />
     
-    <bean id="buyerService" class="com.lottery.service.impl.BuyerServiceImpl" />
+    <bean id="buyerService" class="com.lottery.service.impl.BuyerServiceImpl" />-->
     
     
     
