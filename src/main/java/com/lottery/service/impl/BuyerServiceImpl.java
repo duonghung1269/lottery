@@ -20,11 +20,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class BuyerServiceImpl extends GenericServiceImpl<Buyer, Long> implements BuyerService{
     
-//    @Autowired
-    private BuyerDao buyerDao = new BuyerDaoImpl();
+    @Autowired
+    private BuyerDao buyerDao; // = new BuyerDaoImpl();
     
-//    public BuyerServiceImpl() {
-//        super();
-//        this.genericDao = buyerDao;
-//    }
+    public BuyerServiceImpl() {
+        super();
+        this.genericDao = buyerDao;
+    }
+
+    public BuyerDao getBuyerDao() {
+        return buyerDao;
+    }
+
+    public void setBuyerDao(BuyerDao buyerDao) {
+        this.buyerDao = buyerDao;
+    }
+    
+    
 }

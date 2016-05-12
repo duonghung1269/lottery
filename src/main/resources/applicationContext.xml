@@ -11,7 +11,7 @@
         http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
     <context:component-scan base-package="com.lottery"/>
-    <context:annotation-config  />
+    <!--<context:annotation-config  />-->
     <tx:annotation-driven transaction-manager="transactionManager"/>
     
     <bean id="transactionManager"
@@ -26,7 +26,7 @@
         <property name="packagesToScan" value="com.lottery.dao.impl"/>
         <property name="hibernateProperties">
             <props>
-                <prop key="hibernate.hbm2ddl.auto">update</prop>
+                <prop key="hibernate.hbm2ddl.auto">false</prop>
                 <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
                 <prop key="hibernate.connection.CharSet">utf8</prop>
                 <prop key="hibernate.connection.characterEncoding">utf8</prop>
@@ -44,11 +44,27 @@
         <property name="username" value="root"/>
         <!--<property name="password" value="123456"/>-->
 
+        <!-- these are C3P0 properties -->
+<!--        <property name="acquireIncrement" value="5" />
+        <property name="minPoolSize" value="5" />
+        <property name="maxPoolSize" value="50" />
+        <property name="maxIdleTime" value="60" /> seconds -->
     </bean>
+    
+    <context:annotation-config /> 
+	
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true" />
+            <tx:method name="*find*" read-only="true" isolation="READ_UNCOMMITTED"/>
+             <tx:method name="find*" read-only="true" />
+            <tx:method name="*" propagation="REQUIRED" rollback-for="Exception"/>
+        </tx:attributes>
+    </tx:advice>
     
     <!--<bean id="mainLotteryForm" class="com.lottery.gui.MainLotteryForm" />-->
     
-        <bean id="buyerDao" class="com.lottery.dao.impl.BuyerDaoImpl" />
+    <bean id="buyerDao" class="com.lottery.dao.impl.BuyerDaoImpl" />
     
     <bean id="buyerService" class="com.lottery.service.impl.BuyerServiceImpl" />
     

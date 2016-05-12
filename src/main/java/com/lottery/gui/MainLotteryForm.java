@@ -7,11 +7,8 @@ package com.lottery.gui;
 
 import com.lottery.dao.BuyerDao;
 import com.lottery.dao.TicketDao;
-import com.lottery.dao.impl.BuyerDaoImpl;
 import com.lottery.dao.impl.TicketDaoImpl;
-import com.lottery.model.Buyer;
 import com.lottery.service.BuyerService;
-import com.lottery.service.impl.BuyerServiceImpl;
 import com.lottery.util.LotteryUtils;
 import java.awt.Color;
 import java.awt.Font;
@@ -21,13 +18,9 @@ import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 
 /**
  *
@@ -43,15 +36,18 @@ public class MainLotteryForm extends javax.swing.JFrame {
 //    ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(contextPaths);
     @Autowired
     private BuyerService buyerService;
+    
+    @Autowired
+    private BuyerDao buyerDao;
 
     /**
      * Creates new form MainLotteryForm
      */
     public MainLotteryForm() {
-        initComponents();
-        ballNumbersPanel.setLayout(new BoxLayout(ballNumbersPanel, BoxLayout.Y_AXIS));
+//        initComponents();
+//        ballNumbersPanel.setLayout(new BoxLayout(ballNumbersPanel, BoxLayout.Y_AXIS));
 //        buyerService = ctx.getBean(BuyerService.class);
-        System.out.print(buyerService); // always null :'(
+//        System.out.print(buyerService); // always null :'(
 //        buyerService = new BuyerServiceImpl();
 
 //        BuyerDao dao = new BuyerDaoImpl();
@@ -59,6 +55,13 @@ public class MainLotteryForm extends javax.swing.JFrame {
 //        System.out.print(buyers);
     }
 
+    public void init() {
+        initComponents();
+        ballNumbersPanel.setLayout(new BoxLayout(ballNumbersPanel, BoxLayout.Y_AXIS));
+//        buyerService = ctx.getBean(BuyerService.class);
+//        System.out.print(buyerService); // always null :'(
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -256,7 +259,8 @@ public class MainLotteryForm extends javax.swing.JFrame {
     private void btnBuyTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuyTicketActionPerformed
         TicketDao ticketDao = new TicketDaoImpl();
         Date today = new Date();
-        Date startDate = LotteryUtils.getNextDate(today);
+        Date startDate = LotteryUtils.getNextDate(today);        
+        buyerService.getAll();
         int startDay = LotteryUtils.getDayOfMonth(startDate);
         int maxDayOfMonth = LotteryUtils.getLastDayOfMonth(startDate);
 
@@ -315,14 +319,27 @@ public class MainLotteryForm extends javax.swing.JFrame {
         //</editor-fold>
 
 //        String[] contextPaths = new String[]{"/applicationContext.xml"};
-//        new ClassPathXmlApplicationContext(contextPaths);
+//        ApplicationContext context = new ClassPathXmlApplicationContext(contextPaths);
+//        MainLotteryForm form = context.getBean(MainLotteryForm.class);  
+//        MainLotteryForm form = new MainLotteryForm();
+//        form.setVisible(true);
+//        form.init();
+//        System.out.print(form.buyerService);
+//        System.out.print(form.buyerService);
 //        System.out.print("");
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new MainLotteryForm().setVisible(true);
+                String[] contextPaths = new String[]{"/applicationContext.xml"};
+                ApplicationContext context = new ClassPathXmlApplicationContext(contextPaths);
+                MainLotteryForm form = context.getBean(MainLotteryForm.class);  
+                form.setVisible(true);
+                form.init();
+                System.out.print(form.buyerService);
+                System.out.print(form.buyerService);
+//                new MainLotteryForm().setVisible(true);
             }
         });
     }

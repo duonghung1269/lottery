@@ -4,6 +4,7 @@
  */
 package com.lottery.service;
 
+import com.lottery.dao.BuyerDao;
 import com.lottery.model.Buyer;
 
 
@@ -12,5 +13,5 @@ import com.lottery.model.Buyer;
  * @author SGSCDHDX
  */
 public interface BuyerService extends GenericService<Buyer, Long> {
-    
+
 }

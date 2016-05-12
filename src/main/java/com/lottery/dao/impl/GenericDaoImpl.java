@@ -27,7 +27,7 @@ public abstract class GenericDaoImpl<E, K extends Serializable>
 
     protected final Logger logger = Logger.getLogger(this.getClass());
     @Autowired
-    private SessionFactory sessionFactory = LotteryHibernateUtil.getSessionFactory();
+    private SessionFactory sessionFactory; // = LotteryHibernateUtil.getSessionFactory();
     protected Class<? extends E> daoType;
 
     /**
