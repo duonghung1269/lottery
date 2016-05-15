@@ -9,6 +9,7 @@ import com.lottery.model.Ticket;
 import com.lottery.pojo.LineBall;
 import com.lottery.model.TicketTable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -189,17 +190,23 @@ public class LotteryUtils {
     }
     
     public static List<TicketTable> isWinner(List<TicketTable> ticketTables, List<Integer> drawNumbers) {
-        List<TicketTable> winTicketTables = new ArrayList<>();
-        List<Integer> sortedNumbers = new ArrayList<>();
-        sortedNumbers.addAll(drawNumbers);
-        Collections.sort(sortedNumbers);
+        List<TicketTable> winTicketTables = new ArrayList<>();        
         
-        String numbersString = StringUtils.join(sortedNumbers, BALLS_SEPARATOR);
+        List<String> drawNumberStrings = new ArrayList<>();
+        for (Integer number : drawNumbers) {
+            drawNumberStrings.add(String.valueOf(number));
+        }
         
-        for (TicketTable ticketTable : ticketTables) {
-            if (numbersString.contains(ticketTable.getFirstLine())
-               || numbersString.contains(ticketTable.getSecondLine())
-               || numbersString.contains(ticketTable.getThirdLine())) {
+        for (TicketTable ticketTable : ticketTables) {        
+            List<String> firstLines = new ArrayList<>(Arrays.asList(ticketTable.getFirstLine().split(BALLS_SEPARATOR)));
+            List<String> secondtLines = new ArrayList<>(Arrays.asList(ticketTable.getSecondLine().split(BALLS_SEPARATOR)));
+            List<String> thirdLines = new ArrayList<>(Arrays.asList(ticketTable.getThirdLine().split(BALLS_SEPARATOR)));                        
+
+            firstLines.retainAll(drawNumberStrings);
+            secondtLines.retainAll(drawNumberStrings);
+            thirdLines.retainAll(drawNumberStrings);
+            
+            if (firstLines.size() == MAX_BALLS_PER_LINE || secondtLines.size() == MAX_BALLS_PER_LINE || thirdLines.size() == MAX_BALLS_PER_LINE) {
                 winTicketTables.add(ticketTable);
             }
         }
