@@ -7,7 +7,7 @@ package com.lottery.util;
 import com.lottery.exception.LotteryException;
 import com.lottery.model.Ticket;
 import com.lottery.pojo.LineBall;
-import com.lottery.pojo.TicketTable;
+import com.lottery.model.TicketTable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -23,7 +23,7 @@ import org.apache.log4j.Logger;
  */
 public class LotteryUtils {
     
-    Logger logger = Logger.getLogger(this.getClass());
+    private static final Logger LOGGER = Logger.getLogger(LotteryUtils.class);
     
     public static final int MIN_BALL_VALUE = 1;
     public static final int MAX_BALL_VALUE = 75;
@@ -35,19 +35,21 @@ public class LotteryUtils {
     public static final int NO_TABLES_PER_TICKET = 3;
     
     public static final String BALLS_SEPARATOR = " ";
+    public static final String GROUP_BALLS_SEPARATOR = "|";
     
-    public static LineBall generateLineBalls() {
+    public static LineBall generateLineBalls(List<Integer> generatedBalls) {
         List<Integer> balls = new ArrayList<>();
-        Random rand = new Random(MAX_BALL_VALUE);
+        Random rand = new Random();
                 
         int countBalls = 0;
         int randBall = 0;
         while (countBalls < MAX_BALLS_PER_LINE) {
-            randBall = MIN_BALL_VALUE + rand.nextInt();
-            if (balls.contains(randBall)) {
+            randBall = MIN_BALL_VALUE + rand.nextInt(MAX_BALL_VALUE);
+            if (generatedBalls.contains(randBall)) {
                 continue;
             }
             
+            generatedBalls.add(randBall);
             balls.add(randBall);
             countBalls++;
         }
@@ -55,18 +57,18 @@ public class LotteryUtils {
         // sort ascending
         Collections.sort(balls);
         
-        Random randBlankCell = new Random(NO_CELLS_PER_LINE);
-        int[] blankCells = new int[NO_BLANK_CELLS_PER_LINE];        
-        List<Integer> blankCellIndices = new ArrayList<>();
+        Random randBlankCell = new Random();          
+        List<Integer> blankCellIndices = new ArrayList<>(NO_BLANK_CELLS_PER_LINE);
         int countBlankCells = 0;
         while (countBlankCells < NO_BLANK_CELLS_PER_LINE) {
-            int blankCellIndex = randBlankCell.nextInt();
+            int blankCellIndex = randBlankCell.nextInt(NO_CELLS_PER_LINE);
             if (blankCellIndices.contains(blankCellIndex)) {
                 continue;
             }
-            blankCells[countBlankCells++] = blankCellIndex;
+            blankCellIndices.add(blankCellIndex);
+            countBlankCells++;
         }
-        return new LineBall(blankCells, StringUtils.join(balls, BALLS_SEPARATOR));
+        return new LineBall(balls, blankCellIndices);
     }
     
     public static boolean isValidLineBall(String lineBallValue, List<String> lineBallStrings) {
@@ -92,43 +94,54 @@ public class LotteryUtils {
      * @return
      * @throws LotteryException 
      */
-    public List<Ticket> generateTicket(List<String> lineBallStrings, Date date) throws LotteryException {
-        List<Ticket> tickets = new ArrayList<>();
+    public static Ticket generateTicket(List<String> lineBallStrings, Date date) throws LotteryException {
+        Ticket ticket = new Ticket();
+        ticket.setDrawDate(date);
+        ticket.setSerialNumber("SN" + System.currentTimeMillis());
+        
         for (byte round = 1; round <= NO_TABLES_PER_TICKET; round++) {
 
-            int lineCount = 1;
-            Ticket ticket = new Ticket();
+            int lineCount = 1;            
             TicketTable ticketTable = new TicketTable();
-            while (lineCount > NO_LINES_PER_TABLE) {
-                LineBall lineBall = generateLineBalls();
-                final String ballsValue = lineBall.getBalls();
+            ticketTable.setTicket(ticket);
+            
+            List<String> blankIndices = new ArrayList<>();
+            List<Integer> generatedBalls = new ArrayList<>();
+            while (lineCount <= NO_LINES_PER_TABLE) {
+                LineBall lineBall = generateLineBalls(generatedBalls);
+                final String ballsValue = lineBall.getBallsString();
                 if (isValidLineBall(ballsValue, lineBallStrings)) {
                     switch (lineCount) {
                         case 1:
-                            ticket.setFirstLine(ballsValue);
+                            ticketTable.setFirstLine(ballsValue);
+                            lineCount++;
                             break;
                         case 2:
-                            ticket.setSecondLine(ballsValue);
+                            ticketTable.setSecondLine(ballsValue);
+                            lineCount++;
                             break;
                         case 3:
-                            ticket.setThirdLine(ballsValue);
+                            ticketTable.setThirdLine(ballsValue);
+                            lineCount++;
                             break;
                         default:
-                            logger.error("generateTicket programming error!");
+                            LOGGER.error("generateTicket programming error!");
                             break;
                     }
+                    
+                    lineBallStrings.add(ballsValue);
                 }
                 
-                ticketTable.add(lineBall);
+                blankIndices.add(lineBall.getBlankIndicesString());
             }
-            
-            ticket.setDrawDate(date);
-            ticket.setRound(round);
-            ticket.setBlankIndices(ticketTable.generateBlankIndices());
-            tickets.add(ticket);
+                        
+            ticketTable.setRound(round);
+            ticketTable.setBlankIndices(StringUtils.join(blankIndices, GROUP_BALLS_SEPARATOR));
+            ticketTable.setFullTable(ticketTable.getFirstLine() + GROUP_BALLS_SEPARATOR + ticketTable.getSecondLine() + GROUP_BALLS_SEPARATOR + ticketTable.getThirdLine());
+            ticket.getTicketTables().add(ticketTable);
         }
         
-        return tickets;
+        return ticket;
     }
     
     public static Date getNextDate(Date date) {
@@ -158,5 +171,16 @@ public class LotteryUtils {
         cal.setTime(date);
         
         return cal.get(Calendar.DAY_OF_MONTH);
+    }
+    
+    public static List<String> getAllLinesBalls(List<TicketTable> ticketTables) {
+        List<String> results = new ArrayList<>();
+        for (TicketTable ticketTable : ticketTables) {
+            results.add(ticketTable.getFirstLine());
+            results.add(ticketTable.getSecondLine());
+            results.add(ticketTable.getThirdLine());
+        }
+        
+        return results;
     }
 }

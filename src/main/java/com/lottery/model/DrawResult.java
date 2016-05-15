@@ -1,11 +1,10 @@
 package com.lottery.model;
-// Generated May 10, 2016 4:58:03 PM by Hibernate Tools 3.2.1.GA
+// Generated May 15, 2016 2:14:11 AM by Hibernate Tools 4.3.1
 
 
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -33,7 +32,7 @@ public class DrawResult  implements java.io.Serializable {
      private Date drawDate;
      private String drawBalls;
      private String winBalls;
-     private Set winTickets = new HashSet(0);
+     private Set<WinTicket> winTickets = new HashSet<>();
 
     public DrawResult() {
     }
@@ -51,6 +50,7 @@ public class DrawResult  implements java.io.Serializable {
     }
    
      @Id @GeneratedValue(strategy=IDENTITY)
+
     
     @Column(name="id", unique=true, nullable=false)
     public Long getId() {
@@ -60,6 +60,7 @@ public class DrawResult  implements java.io.Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
     @Temporal(TemporalType.DATE)
     @Column(name="draw_date", unique=true, nullable=false, length=10)
     public Date getDrawDate() {
@@ -69,6 +70,7 @@ public class DrawResult  implements java.io.Serializable {
     public void setDrawDate(Date drawDate) {
         this.drawDate = drawDate;
     }
+
     
     @Column(name="draw_balls", nullable=false, length=250)
     public String getDrawBalls() {
@@ -78,6 +80,7 @@ public class DrawResult  implements java.io.Serializable {
     public void setDrawBalls(String drawBalls) {
         this.drawBalls = drawBalls;
     }
+
     
     @Column(name="win_balls", length=45)
     public String getWinBalls() {
@@ -87,12 +90,13 @@ public class DrawResult  implements java.io.Serializable {
     public void setWinBalls(String winBalls) {
         this.winBalls = winBalls;
     }
-@OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy="drawResult")
-    public Set getWinTickets() {
+
+@OneToMany(fetch=FetchType.LAZY, mappedBy="drawResult")
+    public Set<WinTicket> getWinTickets() {
         return this.winTickets;
     }
     
-    public void setWinTickets(Set winTickets) {
+    public void setWinTickets(Set<WinTicket> winTickets) {
         this.winTickets = winTickets;
     }
 

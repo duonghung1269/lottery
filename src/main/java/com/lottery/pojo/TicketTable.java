@@ -42,11 +42,11 @@ public class TicketTable {
         }
         
         List<Integer> blankIndices = new ArrayList<>();
-        for (LineBall lineBall : table) {
-            for (int i = 0; i < lineBall.getBlankIndices().length; i++) {
-                blankIndices.add(lineBall.getBlankIndices()[i]);
-            }
-        }
+//        for (LineBall lineBall : table) {
+//            for (int i = 0; i < lineBall.getBlankIndices().length; i++) {
+//                blankIndices.add(lineBall.getBlankIndices()[i]);
+//            }
+//        }
         
         return StringUtils.join(blankIndices, LotteryUtils.BALLS_SEPARATOR);
     }

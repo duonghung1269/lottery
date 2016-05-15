@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-        http://www.springframework.org/schema/context
-        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx.xsd
-        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd"
+        default-lazy-init="false">
 
     <context:component-scan base-package="com.lottery"/>
     <!--<context:annotation-config  />-->
@@ -23,7 +26,7 @@
     <bean id="sessionFactory"
           class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
-        <property name="packagesToScan" value="com.lottery.dao.impl"/>
+        <property name="packagesToScan" value="com.lottery.model"/>
         <property name="hibernateProperties">
             <props>
                 <prop key="hibernate.hbm2ddl.auto">false</prop>
@@ -56,11 +59,16 @@
     <tx:advice id="txAdvice" transaction-manager="transactionManager">
         <tx:attributes>
             <tx:method name="get*" read-only="true" />
-            <tx:method name="*find*" read-only="true" isolation="READ_UNCOMMITTED"/>
+            <!--<tx:method name="*find*" read-only="true" isolation="READ_UNCOMMITTED"/>-->
              <tx:method name="find*" read-only="true" />
             <tx:method name="*" propagation="REQUIRED" rollback-for="Exception"/>
         </tx:attributes>
     </tx:advice>
+    
+    <aop:config>
+            <aop:pointcut id="ServiceOperation" expression="execution(* com.lottery.service.impl.*ServiceImpl.*(..))" />
+            <aop:advisor advice-ref="txAdvice" pointcut-ref="ServiceOperation"/>
+    </aop:config>
     
     <!--<bean id="mainLotteryForm" class="com.lottery.gui.MainLotteryForm" />-->
     

@@ -17,12 +17,10 @@ public class TicketDaoImpl extends GenericDaoImpl<Ticket, Long> implements Ticke
     
     @Override
     public List<String> findFullTableColumn(Date date) {
-        
-        currentSession().beginTransaction();
+                
         final List<String> list = currentSession().createSQLQuery("Select full_table from Ticket where draw_date = :drawDate")
                                           .setParameter("drawDate", date)
-                                          .list();
-        currentSession().getTransaction().commit();
+                                          .list();        
         
         return list;
     }
