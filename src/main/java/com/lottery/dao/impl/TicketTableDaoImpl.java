@@ -9,6 +9,7 @@ import com.lottery.dao.TicketTableDao;
 import com.lottery.model.TicketTable;
 import java.util.Date;
 import java.util.List;
+import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -20,8 +21,14 @@ public class TicketTableDaoImpl extends GenericDaoImpl<TicketTable, Long> implem
 
     @Override
     public List<TicketTable> getByDate(Date date) {        
-        final List<TicketTable> list = currentSession().createSQLQuery("Select tt.* from Ticket_Table tt inner join Ticket t on tt.ticket_id = t.id where t.draw_date = :drawDate")
+//        final List<TicketTable> list = currentSession().createSQLQuery("Select tt.* from Ticket_Table tt inner join Ticket t on tt.ticket_id = t.id where t.draw_date = :drawDate")
+//                                          .setParameter("drawDate", date)
+//                                           .setResultTransformer(Transformers.aliasToBean(TicketTable.class))
+//                                          .list();
+        
+        final List<TicketTable> list = currentSession().createQuery("Select tt from TicketTable tt inner join tt.ticket t where t.drawDate = :drawDate")
                                           .setParameter("drawDate", date)
+//                                           .setResultTransformer(Transformers.aliasToBean(TicketTable.class))
                                           .list();
         return list;
     }

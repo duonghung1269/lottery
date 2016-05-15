@@ -148,6 +148,10 @@ public class LotteryUtils {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.DAY_OF_YEAR, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
     }
     
@@ -182,5 +186,24 @@ public class LotteryUtils {
         }
         
         return results;
+    }
+    
+    public static List<TicketTable> isWinner(List<TicketTable> ticketTables, List<Integer> drawNumbers) {
+        List<TicketTable> winTicketTables = new ArrayList<>();
+        List<Integer> sortedNumbers = new ArrayList<>();
+        sortedNumbers.addAll(drawNumbers);
+        Collections.sort(sortedNumbers);
+        
+        String numbersString = StringUtils.join(sortedNumbers, BALLS_SEPARATOR);
+        
+        for (TicketTable ticketTable : ticketTables) {
+            if (ticketTable.getFirstLine().indexOf(numbersString) != -1 
+               || ticketTable.getSecondLine().indexOf(numbersString) != -1 
+               || ticketTable.getThirdLine().indexOf(numbersString) != -1      ) {
+                winTicketTables.add(ticketTable);
+            }
+        }
+        
+        return winTicketTables;
     }
 }
