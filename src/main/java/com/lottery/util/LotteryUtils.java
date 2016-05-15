@@ -197,9 +197,9 @@ public class LotteryUtils {
         String numbersString = StringUtils.join(sortedNumbers, BALLS_SEPARATOR);
         
         for (TicketTable ticketTable : ticketTables) {
-            if (ticketTable.getFirstLine().indexOf(numbersString) != -1 
-               || ticketTable.getSecondLine().indexOf(numbersString) != -1 
-               || ticketTable.getThirdLine().indexOf(numbersString) != -1      ) {
+            if (numbersString.contains(ticketTable.getFirstLine())
+               || numbersString.contains(ticketTable.getSecondLine())
+               || numbersString.contains(ticketTable.getThirdLine())) {
                 winTicketTables.add(ticketTable);
             }
         }

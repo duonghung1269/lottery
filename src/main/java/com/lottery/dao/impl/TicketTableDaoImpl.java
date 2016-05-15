@@ -26,7 +26,7 @@ public class TicketTableDaoImpl extends GenericDaoImpl<TicketTable, Long> implem
 //                                           .setResultTransformer(Transformers.aliasToBean(TicketTable.class))
 //                                          .list();
         
-        final List<TicketTable> list = currentSession().createQuery("Select tt from TicketTable tt inner join tt.ticket t where t.drawDate = :drawDate")
+        final List<TicketTable> list = currentSession().createQuery("Select tt from TicketTable tt inner join tt.ticket t inner join t.buyer b where t.drawDate = :drawDate")
                                           .setParameter("drawDate", date)
 //                                           .setResultTransformer(Transformers.aliasToBean(TicketTable.class))
                                           .list();
