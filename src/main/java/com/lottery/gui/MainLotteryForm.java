@@ -329,7 +329,12 @@ public class MainLotteryForm extends javax.swing.JFrame {
 
             }
             
+            
+            
             buyer.setTickets(newTickets);
+            
+            LotteryUtils.generatePhysicalTicket(buyer, System.currentTimeMillis() + "_" + buyer.getName() + ".xls");
+            
             buyerService.saveOrUpdate(buyer);
             JOptionPane.showMessageDialog(this, "Generate ticket successfully for " + tfBuyerName.getText() + "!");
             

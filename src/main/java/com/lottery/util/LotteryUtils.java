@@ -5,18 +5,32 @@
 package com.lottery.util;
 
 import com.lottery.exception.LotteryException;
+import com.lottery.model.Buyer;
 import com.lottery.model.Ticket;
 import com.lottery.pojo.LineBall;
 import com.lottery.model.TicketTable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+
 
 /**
  *
@@ -40,6 +54,7 @@ public class LotteryUtils {
     
     public static LineBall generateLineBalls(List<Integer> generatedBalls) {
         List<Integer> balls = new ArrayList<>();
+//        Set s = new HashSet();
         Random rand = new Random();
                 
         int countBalls = 0;
@@ -212,5 +227,122 @@ public class LotteryUtils {
         }
         
         return winTicketTables;
+    }
+    
+    public static void generatePhysicalTicket(Buyer buyer, String fileName) throws IOException {
+            HSSFWorkbook workbook = new HSSFWorkbook();
+
+//		sheet.setDefaultRowHeight(IMAGE_ROW_HEIGHT);
+
+
+        List<Ticket> tickets = buyer.getTickets();
+        for (int ticketIndex = 0; ticketIndex < tickets.size(); ticketIndex++) {
+            Map<String, Object[]> data = new LinkedHashMap<String, Object[]>();
+            data.put("1", new Object[] { "Name", "", "", "", "", "", "", "", "", ""});
+            data.put("2", new Object[] { "IC", "", "", "", "", "", "", "", "", ""});
+            data.put("3", new Object[] { "Draw Date", "", "", "", "", "", "", "", "", ""});
+
+            // prepare data
+            int rowNumber = 5;
+
+            Ticket ticket = tickets.get(ticketIndex);
+
+            HSSFSheet sheet = workbook.createSheet(DateFormatUtils.format(ticket.getDrawDate(), "yyyyMMdd"));
+
+            List<TicketTable> ticketTables = ticket.getTicketTables();
+
+            for (TicketTable ticketTable : ticketTables) {
+                byte round = ticketTable.getRound();
+                String[] blankIndicesGroup = ticketTable.getBlankIndices().split("\\" + GROUP_BALLS_SEPARATOR);
+
+                String[] firstLineBalls = ticketTable.getFirstLine().split(BALLS_SEPARATOR);
+                String[] secondLineBalls = ticketTable.getSecondLine().split(BALLS_SEPARATOR);
+                String[] thirdLineBalls = ticketTable.getThirdLine().split(BALLS_SEPARATOR);
+
+                List<String> firstLineBallsList = new ArrayList<>();
+                firstLineBallsList.addAll(Arrays.asList(firstLineBalls));
+                String[] blankIndices = blankIndicesGroup[0].split(BALLS_SEPARATOR);
+                int firstLineBlankCell1 = Integer.parseInt(blankIndices[0]);
+                int firstLineBlankCell2 = Integer.parseInt(blankIndices[1]);
+                firstLineBallsList.add(firstLineBlankCell1, "");
+                firstLineBallsList.add(firstLineBlankCell2, "");                                                                                                
+
+                Object[] objArray = new Object[NO_CELLS_PER_LINE];
+                for (int colIndex = 0; colIndex < NO_CELLS_PER_LINE; colIndex++) {
+                    objArray[colIndex] = firstLineBallsList.get(colIndex);
+                }
+                data.put(String.valueOf(rowNumber++), objArray);
+
+                rowNumber++; // add 1 empty row
+
+                List<String> secondLineBallsList = new ArrayList<>();
+                secondLineBallsList.addAll(Arrays.asList(secondLineBalls));
+                blankIndices = blankIndicesGroup[1].split(BALLS_SEPARATOR);
+                int secondLineBlankCell1 = Integer.parseInt(blankIndices[0]);
+                int secondLineBlankCell2 = Integer.parseInt(blankIndices[1]);
+                secondLineBallsList.add(secondLineBlankCell1, "");
+                secondLineBallsList.add(secondLineBlankCell2, "");                                                                                                
+
+                Object[] objArray2 = new Object[NO_CELLS_PER_LINE];
+                for (int colIndex = 0; colIndex < NO_CELLS_PER_LINE; colIndex++) {
+                    objArray[colIndex] = secondLineBallsList.get(colIndex);
+                }
+                data.put(String.valueOf(rowNumber++), objArray2);
+
+                rowNumber++; // add 1 empty row
+
+                List<String> thirdLineBallsList = new ArrayList<>();
+                thirdLineBallsList.addAll(Arrays.asList(thirdLineBalls));
+                blankIndices = blankIndicesGroup[2].split(BALLS_SEPARATOR);
+                int thirdLineBlankCell1 = Integer.parseInt(blankIndices[0]);
+                int thirdLineBlankCell2 = Integer.parseInt(blankIndices[1]);
+                thirdLineBallsList.add(thirdLineBlankCell1, "");
+                thirdLineBallsList.add(thirdLineBlankCell2, "");                                                                                                
+
+                Object[] objArray3 = new Object[NO_CELLS_PER_LINE];
+                for (int colIndex = 0; colIndex < NO_CELLS_PER_LINE; colIndex++) {
+                    objArray[colIndex] = thirdLineBallsList.get(colIndex);
+                }
+                data.put(String.valueOf(rowNumber++), objArray3);                        
+
+            }
+
+            // export data to excel file
+            Set<String> keyset = data.keySet();
+            int rownum = 0;	    
+            for (String key : keyset) {
+                Row row = sheet.createRow(rownum);
+                Object [] objArr = data.get(key);
+                int cellnum = 0;
+                for (int i = 0; i < objArr.length; i++) {
+                        Object obj = objArr[i];
+
+    //	        	if (i == ID_COLUMN_INDEX) {
+    //	        		continue;
+    //	        	}
+
+                    Cell cell = row.createCell(cellnum++);
+                    if(obj instanceof String)
+                        cell.setCellValue((String)obj);
+                    else if(obj instanceof Integer)
+                        cell.setCellValue((Integer)obj);
+                }
+
+
+            }
+	    	    
+	}
+        
+        try (FileOutputStream out = new FileOutputStream(new File(fileName))) {
+            workbook.write(out);
+
+        } catch (FileNotFoundException e) {
+            throw e;
+        } catch (IOException e) {
+            throw e;
+        }
+        System.out.println("Excel written successfully..");
+                
+                
     }
 }
