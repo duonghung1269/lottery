@@ -70,7 +70,7 @@ public class TicketTable implements java.io.Serializable {
         this.id = id;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ticket_id", nullable = false)
     public Ticket getTicket() {
         return this.ticket;

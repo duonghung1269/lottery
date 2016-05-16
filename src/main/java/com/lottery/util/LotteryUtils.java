@@ -9,6 +9,7 @@ import com.lottery.model.Ticket;
 import com.lottery.pojo.LineBall;
 import com.lottery.model.TicketTable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -148,6 +149,10 @@ public class LotteryUtils {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.add(Calendar.DAY_OF_YEAR, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
         return cal.getTime();
     }
     
@@ -182,5 +187,30 @@ public class LotteryUtils {
         }
         
         return results;
+    }
+    
+    public static List<TicketTable> isWinner(List<TicketTable> ticketTables, List<Integer> drawNumbers) {
+        List<TicketTable> winTicketTables = new ArrayList<>();        
+        
+        List<String> drawNumberStrings = new ArrayList<>();
+        for (Integer number : drawNumbers) {
+            drawNumberStrings.add(String.valueOf(number));
+        }
+        
+        for (TicketTable ticketTable : ticketTables) {        
+            List<String> firstLines = new ArrayList<>(Arrays.asList(ticketTable.getFirstLine().split(BALLS_SEPARATOR)));
+            List<String> secondtLines = new ArrayList<>(Arrays.asList(ticketTable.getSecondLine().split(BALLS_SEPARATOR)));
+            List<String> thirdLines = new ArrayList<>(Arrays.asList(ticketTable.getThirdLine().split(BALLS_SEPARATOR)));                        
+
+            firstLines.retainAll(drawNumberStrings);
+            secondtLines.retainAll(drawNumberStrings);
+            thirdLines.retainAll(drawNumberStrings);
+            
+            if (firstLines.size() == MAX_BALLS_PER_LINE || secondtLines.size() == MAX_BALLS_PER_LINE || thirdLines.size() == MAX_BALLS_PER_LINE) {
+                winTicketTables.add(ticketTable);
+            }
+        }
+        
+        return winTicketTables;
     }
 }
