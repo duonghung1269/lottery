@@ -17,6 +17,8 @@ import java.awt.ComponentOrientation;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -24,8 +26,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +53,11 @@ public class MainLotteryForm extends javax.swing.JFrame {
     private GridBagConstraints c = new GridBagConstraints();
     private List<TicketTable> dbTicketTables = new ArrayList<>();
     private Set<TicketTable> winTicketTables = new HashSet<>();
+    
+    private JLabel lbDrawDate;
+    private JFormattedTextField tfDrawDate;
+    private JLabel lbRound;
+    private JComboBox cbbRound;
     
     @Autowired
     private BuyerService buyerService;
@@ -76,6 +86,22 @@ public class MainLotteryForm extends javax.swing.JFrame {
         WinnerTableModel model = new WinnerTableModel();
         model.setData(winTicketTables);
         tblWinners.setModel(model);
+        
+        pnStart.setLayout(new GridBagLayout());
+        pnStart.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+        DateFormat format = new SimpleDateFormat("yyyy--MMMM--dd");
+        GridBagConstraints pnStartConstraint = new GridBagConstraints();
+        pnStartConstraint.fill = GridBagConstraints.HORIZONTAL;
+        
+        lbDrawDate = new JLabel("Date");
+        pnStartConstraint.gridx = 0;
+        pnStartConstraint.gridy = 0;
+        pnStart.add(lbDrawDate, pnStartConstraint);
+                        
+        tfDrawDate = new JFormattedTextField(format);
+        pnStartConstraint.gridx = 1;
+        pnStartConstraint.gridy = 0;
+        pnStart.add(tfDrawDate, pnStartConstraint);
     }
 
     /**
@@ -104,6 +130,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblWinners = new javax.swing.JTable();
+        pnStart = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -144,7 +171,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
                         .addComponent(btnReset, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(tfBuyerName)
                     .addComponent(tfBuyerIc))
-                .addContainerGap(657, Short.MAX_VALUE))
+                .addContainerGap(681, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -161,7 +188,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnReset)
                     .addComponent(btnBuyTicket))
-                .addContainerGap(415, Short.MAX_VALUE))
+                .addContainerGap(666, Short.MAX_VALUE))
         );
 
         btnBuyTicket.getAccessibleContext().setAccessibleName("btnBuyTicket");
@@ -202,7 +229,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 921, Short.MAX_VALUE)
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -213,6 +240,17 @@ public class MainLotteryForm extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        javax.swing.GroupLayout pnStartLayout = new javax.swing.GroupLayout(pnStart);
+        pnStart.setLayout(pnStartLayout);
+        pnStartLayout.setHorizontalGroup(
+            pnStartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        pnStartLayout.setVerticalGroup(
+            pnStartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 155, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -221,29 +259,35 @@ public class MainLotteryForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(ballNumbersPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addComponent(jLabel5)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(inputNumberTf, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(submitInputBtn)
-                        .addGap(0, 675, Short.MAX_VALUE))
-                    .addComponent(ballNumbersPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(pnStart, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(inputNumberTf, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(submitInputBtn)
+                                .addGap(159, 159, 159)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(17, 17, 17)
+                .addGap(40, 40, 40)
+                .addComponent(pnStart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 104, Short.MAX_VALUE)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(inputNumberTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(submitInputBtn))
-                .addGap(33, 33, 33)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(ballNumbersPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(28, 28, 28)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
@@ -480,6 +524,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
+    private javax.swing.JPanel pnStart;
     private javax.swing.JButton submitInputBtn;
     private javax.swing.JTable tblWinners;
     private javax.swing.JTextField tfBuyerIc;
