@@ -317,12 +317,13 @@ public class MainLotteryForm extends javax.swing.JFrame {
         List<String> linesBallsDb = new ArrayList<>();
         List<Ticket> newTickets = new ArrayList<>();
         Date queryDate = startDate;
+        int count = 0;
         try {
             for (int dayOfMonth = startDay; dayOfMonth <= maxDayOfMonth; dayOfMonth++) {
 
                 List<TicketTable> ticketTables = ticketTableService.getByDate(queryDate);
                 linesBallsDb = LotteryUtils.getAllLinesBalls(ticketTables);
-                Ticket newTicket = LotteryUtils.generateTicket(linesBallsDb, queryDate);
+                Ticket newTicket = LotteryUtils.generateTicket(linesBallsDb, queryDate, count++);
                 newTicket.setBuyer(buyer);
                 newTickets.add(newTicket);
                 queryDate = LotteryUtils.getNextDate(queryDate);
