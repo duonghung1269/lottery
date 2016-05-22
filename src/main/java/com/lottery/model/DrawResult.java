@@ -4,7 +4,6 @@ package com.lottery.model;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,7 +29,7 @@ public class DrawResult implements java.io.Serializable {
     private String drawBalls;
     private String winBalls;
     private byte round;
-    private Set<WinTicket> winTickets = new HashSet<>();
+    private Set<TicketTable> ticketTables = new HashSet<>();
 
     public DrawResult() {
     }
@@ -40,11 +39,11 @@ public class DrawResult implements java.io.Serializable {
         this.drawBalls = drawBalls;
     }
 
-    public DrawResult(Date drawDate, String drawBalls, String winBalls, Set winTickets, byte round) {
+    public DrawResult(Date drawDate, String drawBalls, String winBalls, Set<TicketTable> ticketTables, byte round) {
         this.drawDate = drawDate;
         this.drawBalls = drawBalls;
         this.winBalls = winBalls;
-        this.winTickets = winTickets;
+        this.ticketTables = ticketTables;
         this.round = round;
     }
 
@@ -96,12 +95,12 @@ public class DrawResult implements java.io.Serializable {
         this.round = round;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "drawResult", cascade= CascadeType.ALL)
-    public Set<WinTicket> getWinTickets() {
-        return this.winTickets;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "drawResult")
+    public Set<TicketTable> getTicketTables() {
+        return this.ticketTables;
     }
 
-    public void setWinTickets(Set<WinTicket> winTickets) {
-        this.winTickets = winTickets;
+    public void setTicketTables(Set<TicketTable> ticketTables) {
+        this.ticketTables = ticketTables;
     }
 }

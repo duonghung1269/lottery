@@ -13,6 +13,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -217,11 +219,17 @@ public class LotteryUtils {
         return results;
     }
 
-    public static List<TicketTable> isWinner(List<TicketTable> ticketTables, List<Integer> drawNumbers) {
+    /**
+     * 
+     * @param ticketTables all ticket tables in database
+     * @param drawedNumbers ball numbers inputed by user
+     * @return 
+     */
+    public static List<TicketTable> getWinnerByLine(List<TicketTable> ticketTables, List<Integer> drawedNumbers) {
         List<TicketTable> winTicketTables = new ArrayList<>();
 
         List<String> drawNumberStrings = new ArrayList<>();
-        for (Integer number : drawNumbers) {
+        for (Integer number : drawedNumbers) {
             drawNumberStrings.add(String.valueOf(number));
         }
 
@@ -233,9 +241,14 @@ public class LotteryUtils {
             firstLines.retainAll(drawNumberStrings);
             secondtLines.retainAll(drawNumberStrings);
             thirdLines.retainAll(drawNumberStrings);
-
-            if (firstLines.size() == MAX_BALLS_PER_LINE || secondtLines.size() == MAX_BALLS_PER_LINE || thirdLines.size() == MAX_BALLS_PER_LINE) {
+            
+            // full table
+            if (firstLines.size() == MAX_BALLS_PER_LINE && secondtLines.size() == MAX_BALLS_PER_LINE && thirdLines.size() == MAX_BALLS_PER_LINE) {
                 winTicketTables.add(ticketTable);
+                ticketTable.setWinType(TicketTable.FULL_TABLE);
+            } else if (firstLines.size() == MAX_BALLS_PER_LINE || secondtLines.size() == MAX_BALLS_PER_LINE || thirdLines.size() == MAX_BALLS_PER_LINE) { // full 1 line
+                winTicketTables.add(ticketTable);
+                ticketTable.setWinType(TicketTable.FULL_LINE);
             }
         }
 
@@ -422,5 +435,35 @@ public class LotteryUtils {
             objArray[colIndex] = lineBallsList.get(colIndex);
         }
         data.put(rowNumber + "style", objArray);
+    }
+    
+    public static Date getDate(String dateStr) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        return sdf.parse(dateStr);
+    }        
+    
+    public static Date getDateWithoutTime(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.add(Calendar.DAY_OF_YEAR, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        
+        return cal.getTime();
+    }
+    
+    public static Date getTargetDate(Date startDate) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(startDate);
+        cal.add(Calendar.DAY_OF_YEAR, 1);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+     
+        cal.add(Calendar.MONTH, 1);
+        return cal.getTime();
     }
 }

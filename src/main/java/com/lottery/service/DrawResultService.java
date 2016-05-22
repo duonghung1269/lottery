@@ -8,15 +8,16 @@ package com.lottery.service;
 import com.lottery.model.DrawResult;
 import com.lottery.model.TicketTable;
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 /**
  *
  * @author duonghung1269
  */
-public interface TicketTableService extends GenericService<TicketTable, Long> {
+public interface DrawResultService {
     
-    public List<TicketTable> getByDate(Date date);
-           
+    public void updateWinner(DrawResult newDrawResult, Set<TicketTable> winTicketTables);
+    
+    public DrawResult findBy(Date drawDate, byte round);
+    
 }

@@ -3,20 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.lottery.service;
+package com.lottery.dao;
 
 import com.lottery.model.DrawResult;
-import com.lottery.model.TicketTable;
 import java.util.Date;
-import java.util.List;
-import java.util.Set;
 
 /**
  *
  * @author duonghung1269
  */
-public interface TicketTableService extends GenericService<TicketTable, Long> {
+public interface DrawResultDao extends GenericDao<DrawResult, Long> {        
     
-    public List<TicketTable> getByDate(Date date);
-           
+    public DrawResult findBy(Date drawDate, byte round);
+    
 }

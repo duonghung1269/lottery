@@ -7,9 +7,11 @@ package com.lottery.gui;
 
 import com.lottery.exception.LotteryException;
 import com.lottery.model.Buyer;
+import com.lottery.model.DrawResult;
 import com.lottery.model.Ticket;
 import com.lottery.model.TicketTable;
 import com.lottery.service.BuyerService;
+import com.lottery.service.DrawResultService;
 import com.lottery.service.TicketTableService;
 import com.lottery.util.LotteryUtils;
 import java.awt.Color;
@@ -17,20 +19,19 @@ import java.awt.ComponentOrientation;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.awt.event.KeyEvent;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import javax.swing.BoxLayout;
-import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
+import java.util.logging.Level;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
+import javax.swing.JPanel;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,17 +54,25 @@ public class MainLotteryForm extends javax.swing.JFrame {
     private GridBagConstraints c = new GridBagConstraints();
     private List<TicketTable> dbTicketTables = new ArrayList<>();
     private Set<TicketTable> winTicketTables = new HashSet<>();
+    private static final int NO_NUMBER_PER_ROW = 10;
+    private List<JLabel> lbNumbers = new ArrayList<>();
+    private int totalDrawedNumbers = 0;
+    private boolean isGameRunning = false;
+    private Date drawDate = new Date();
     
-    private JLabel lbDrawDate;
-    private JFormattedTextField tfDrawDate;
-    private JLabel lbRound;
-    private JComboBox cbbRound;
+//    private JLabel lbDrawDate;
+//    private JFormattedTextField tfDrawDate;
+//    private JLabel lbRound;
+//    private JComboBox cbbRound;
     
     @Autowired
     private BuyerService buyerService;
 
     @Autowired
     private TicketTableService ticketTableService;
+    
+    @Autowired
+    private DrawResultService drawResultService;
 
     /**
      * Creates new form MainLotteryForm
@@ -86,24 +95,45 @@ public class MainLotteryForm extends javax.swing.JFrame {
         WinnerTableModel model = new WinnerTableModel();
         model.setData(winTicketTables);
         tblWinners.setModel(model);
-        
-        pnStart.setLayout(new GridBagLayout());
-        pnStart.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        DateFormat format = new SimpleDateFormat("yyyy--MMMM--dd");
-        GridBagConstraints pnStartConstraint = new GridBagConstraints();
-        pnStartConstraint.fill = GridBagConstraints.HORIZONTAL;
-        
-        lbDrawDate = new JLabel("Date");
-        pnStartConstraint.gridx = 0;
-        pnStartConstraint.gridy = 0;
-        pnStart.add(lbDrawDate, pnStartConstraint);
-                        
-        tfDrawDate = new JFormattedTextField(format);
-        pnStartConstraint.gridx = 1;
-        pnStartConstraint.gridy = 0;
-        pnStart.add(tfDrawDate, pnStartConstraint);
+                
+        resetGame();
+//        pnStart.setLayout(new GridBagLayout());
+//        pnStart.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+//        DateFormat format = new SimpleDateFormat("yyyy--MMMM--dd");
+//        GridBagConstraints pnStartConstraint = new GridBagConstraints();
+//        pnStartConstraint.fill = GridBagConstraints.HORIZONTAL;
+//        
+//        lbDrawDate = new JLabel("Date");
+//        pnStartConstraint.gridx = 0;
+//        pnStartConstraint.gridy = 0;
+//        pnStart.add(lbDrawDate, pnStartConstraint);
+//                        
+//        tfDrawDate = new JFormattedTextField(format);
+          
+//        pnStartConstraint.gridx = 1;
+//        pnStartConstraint.gridy = 0;
+//        pnStart.add(tfDrawDate, pnStartConstraint);
     }
 
+    private void resetGame() {        
+        setPanelEnabled(pnInput, false);
+        setPanelEnabled(pnSettings, true);
+        
+        isGameRunning = false;
+        inputNumbers.clear();
+        totalDrawedNumbers = 0;
+        checkCanAddNumber();
+        checkUndoable();                       
+        
+        winTicketTables.clear();
+        refreshWinnerTable();
+        lbNumbers.clear();
+        dbTicketTables.clear();
+        ballNumbersPanel.removeAll();
+        ballNumbersPanel.revalidate();
+        ballNumbersPanel.repaint();
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -121,20 +151,31 @@ public class MainLotteryForm extends javax.swing.JFrame {
         tfBuyerIc = new javax.swing.JTextField();
         btnBuyTicket = new javax.swing.JButton();
         btnReset = new javax.swing.JButton();
+        jLabel6 = new javax.swing.JLabel();
+        ftfBuyStartDate = new javax.swing.JFormattedTextField();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
-        jLabel5 = new javax.swing.JLabel();
-        inputNumberTf = new javax.swing.JTextField();
-        submitInputBtn = new javax.swing.JButton();
         ballNumbersPanel = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblWinners = new javax.swing.JTable();
-        pnStart = new javax.swing.JPanel();
+        pnSettings = new javax.swing.JPanel();
+        jLabel3 = new javax.swing.JLabel();
+        ftfDrawDate = new javax.swing.JFormattedTextField();
+        jLabel4 = new javax.swing.JLabel();
+        cbbRound = new javax.swing.JComboBox<>();
+        btnStart = new javax.swing.JButton();
+        btnReplay = new javax.swing.JButton();
+        pnInput = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        btnUndo = new javax.swing.JButton();
+        btnAddNumber = new javax.swing.JButton();
+        inputNumberTf = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Buyer Information"));
+        jPanel1.setToolTipText("dd/MM/yyyy");
 
         jLabel1.setText("Name");
 
@@ -154,24 +195,35 @@ public class MainLotteryForm extends javax.swing.JFrame {
             }
         });
 
+        jLabel6.setText("Start Date");
+
+        ftfBuyStartDate.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(new java.text.SimpleDateFormat("dd/MM/yyyy"))));
+        ftfBuyStartDate.setToolTipText("dd/MM/yyyy");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(21, 21, 21)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel2))
-                .addGap(29, 29, 29)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(btnBuyTicket, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
-                        .addComponent(btnReset, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(tfBuyerName)
-                    .addComponent(tfBuyerIc))
-                .addContainerGap(681, Short.MAX_VALUE))
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(ftfBuyStartDate, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2))
+                        .addGap(29, 29, 29)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(btnBuyTicket, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 45, Short.MAX_VALUE)
+                                .addComponent(btnReset, javax.swing.GroupLayout.PREFERRED_SIZE, 91, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(tfBuyerName)
+                            .addComponent(tfBuyerIc))))
+                .addContainerGap(657, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -186,9 +238,13 @@ public class MainLotteryForm extends javax.swing.JFrame {
                     .addComponent(tfBuyerIc, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel6)
+                    .addComponent(ftfBuyStartDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(33, 33, 33)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnReset)
                     .addComponent(btnBuyTicket))
-                .addContainerGap(666, Short.MAX_VALUE))
+                .addContainerGap(624, Short.MAX_VALUE))
         );
 
         btnBuyTicket.getAccessibleContext().setAccessibleName("btnBuyTicket");
@@ -196,15 +252,6 @@ public class MainLotteryForm extends javax.swing.JFrame {
         jTabbedPane2.addTab("Ticket", jPanel1);
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Check Winner"));
-
-        jLabel5.setText("Number");
-
-        submitInputBtn.setText("Add");
-        submitInputBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                submitInputBtnActionPerformed(evt);
-            }
-        });
 
         ballNumbersPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Ball Numbers"));
 
@@ -240,15 +287,119 @@ public class MainLotteryForm extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        javax.swing.GroupLayout pnStartLayout = new javax.swing.GroupLayout(pnStart);
-        pnStart.setLayout(pnStartLayout);
-        pnStartLayout.setHorizontalGroup(
-            pnStartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+        pnSettings.setBorder(javax.swing.BorderFactory.createTitledBorder("Settings"));
+
+        jLabel3.setText("Date");
+
+        ftfDrawDate.setFormatterFactory(new javax.swing.text.DefaultFormatterFactory(new javax.swing.text.DateFormatter(new java.text.SimpleDateFormat("dd/MM/yyyy"))));
+        ftfDrawDate.setToolTipText("dd/MM/yyyy");
+
+        jLabel4.setText("Round");
+
+        cbbRound.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3" }));
+
+        btnStart.setLabel("Start");
+        btnStart.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnStartActionPerformed(evt);
+            }
+        });
+
+        btnReplay.setText("Replay");
+        btnReplay.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnReplayActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnSettingsLayout = new javax.swing.GroupLayout(pnSettings);
+        pnSettings.setLayout(pnSettingsLayout);
+        pnSettingsLayout.setHorizontalGroup(
+            pnSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnSettingsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel4))
+                .addGap(29, 29, 29)
+                .addGroup(pnSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnSettingsLayout.createSequentialGroup()
+                        .addComponent(btnStart)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnReplay, javax.swing.GroupLayout.PREFERRED_SIZE, 71, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cbbRound, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ftfDrawDate, javax.swing.GroupLayout.PREFERRED_SIZE, 94, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(587, Short.MAX_VALUE))
         );
-        pnStartLayout.setVerticalGroup(
-            pnStartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 155, Short.MAX_VALUE)
+        pnSettingsLayout.setVerticalGroup(
+            pnSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnSettingsLayout.createSequentialGroup()
+                .addContainerGap(9, Short.MAX_VALUE)
+                .addGroup(pnSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(ftfDrawDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(pnSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(cbbRound, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(pnSettingsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnStart)
+                    .addComponent(btnReplay)))
+        );
+
+        pnInput.setBorder(javax.swing.BorderFactory.createTitledBorder("Input"));
+
+        jLabel5.setText("Number");
+
+        btnUndo.setLabel("Undo");
+        btnUndo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUndoActionPerformed(evt);
+            }
+        });
+
+        btnAddNumber.setText("Add");
+        btnAddNumber.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddNumberActionPerformed(evt);
+            }
+        });
+
+        inputNumberTf.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                inputNumberTfKeyPressed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout pnInputLayout = new javax.swing.GroupLayout(pnInput);
+        pnInput.setLayout(pnInputLayout);
+        pnInputLayout.setHorizontalGroup(
+            pnInputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnInputLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel5)
+                .addGap(24, 24, 24)
+                .addGroup(pnInputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnInputLayout.createSequentialGroup()
+                        .addComponent(btnAddNumber)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnUndo))
+                    .addComponent(inputNumberTf, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(237, Short.MAX_VALUE))
+        );
+        pnInputLayout.setVerticalGroup(
+            pnInputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnInputLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(pnInputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(inputNumberTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(pnInputLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnAddNumber)
+                    .addComponent(btnUndo))
+                .addContainerGap(27, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -261,15 +412,9 @@ public class MainLotteryForm extends javax.swing.JFrame {
                     .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(ballNumbersPanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(pnStart, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel3Layout.createSequentialGroup()
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(inputNumberTf, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(submitInputBtn)
-                                .addGap(159, 159, 159)))
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(pnSettings, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(pnInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -277,13 +422,10 @@ public class MainLotteryForm extends javax.swing.JFrame {
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(40, 40, 40)
-                .addComponent(pnStart, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 104, Short.MAX_VALUE)
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(inputNumberTf, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(submitInputBtn))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(pnSettings, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(pnInput, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(ballNumbersPanel, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(28, 28, 28)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -304,7 +446,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(30, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("Draw", jPanel2);
@@ -315,7 +457,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jTabbedPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1002, Short.MAX_VALUE)
+                .addComponent(jTabbedPane2)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -341,18 +483,44 @@ public class MainLotteryForm extends javax.swing.JFrame {
             return;
         }
         
+        if (StringUtils.isBlank(ftfBuyStartDate.getText().trim())) {
+            JOptionPane.showMessageDialog(this, "Start date is invalid (dd/MM/yyyy)!");
+            ftfBuyStartDate.requestFocusInWindow();
+            return;
+        }
+        
+        Date startDate = null;
+        
+        try {
+            startDate = LotteryUtils.getDate(ftfBuyStartDate.getText().trim());
+        } catch (ParseException ex) {
+            JOptionPane.showMessageDialog(this, "Start date is invalid (dd/MM/yyyy)!");
+            ftfBuyStartDate.requestFocusInWindow();
+            LOGGER.error(ex);
+            return;
+        }
+        
+        Date targetDate = LotteryUtils.getTargetDate(startDate);
+        
+        Date today = new Date();
+        if (today.after(startDate)) {
+            JOptionPane.showMessageDialog(this, "Start date must be greater than today!");
+            tfBuyerName.requestFocusInWindow();
+            return;
+        }
+        
         int dialogResult = JOptionPane.showConfirmDialog (this, "Would You Like to generate ticket for: " + tfBuyerName.getText() + "?","Warning", JOptionPane.YES_OPTION);
         if(dialogResult == JOptionPane.NO_OPTION){
             return;
         }
         
-        Date today = new Date();
-        Date startDate = LotteryUtils.getNextDate(today);
+//        Date today = new Date();
+//        Date startDate = LotteryUtils.getNextDate(today);
 
-        int startDay = LotteryUtils.getDayOfMonth(startDate);
-        int maxDayOfMonth = LotteryUtils.getLastDayOfMonth(startDate);
-
-        buyerService.getAll();
+//        int startDay = LotteryUtils.getDayOfMonth(startDate);
+//        int maxDayOfMonth = LotteryUtils.getLastDayOfMonth(startDate);
+//
+//        buyerService.getAll();
 
         Buyer buyer = new Buyer();
         buyer.setName(tfBuyerName.getText().trim());
@@ -361,9 +529,12 @@ public class MainLotteryForm extends javax.swing.JFrame {
         List<String> linesBallsDb = new ArrayList<>();
         List<Ticket> newTickets = new ArrayList<>();
         Date queryDate = startDate;
+        
+        
         int count = 0;
         try {
-            for (int dayOfMonth = startDay; dayOfMonth <= maxDayOfMonth; dayOfMonth++) {
+//            for (int dayOfMonth = startDay; dayOfMonth <= maxDayOfMonth; dayOfMonth++) {
+            for (; queryDate.before(targetDate); ) {
 
                 List<TicketTable> ticketTables = ticketTableService.getByDate(queryDate);
                 linesBallsDb = LotteryUtils.getAllLinesBalls(ticketTables);
@@ -395,11 +566,16 @@ public class MainLotteryForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBuyTicketActionPerformed
 
 
-    private void submitInputBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitInputBtnActionPerformed
+    private void btnAddNumberActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddNumberActionPerformed
         try {
             Integer number = Integer.parseInt(inputNumberTf.getText());
             if (inputNumbers.contains(number)) {
                 JOptionPane.showMessageDialog(this, "Number has already existed!");
+                return;
+            }
+            
+            if (number > LotteryUtils.MAX_BALL_VALUE || number < LotteryUtils.MIN_BALL_VALUE) {
+                JOptionPane.showMessageDialog(this, "Invalid range (" + LotteryUtils.MIN_BALL_VALUE + " - " + LotteryUtils.MAX_BALL_VALUE + ")!");
                 return;
             }
             
@@ -414,14 +590,14 @@ public class MainLotteryForm extends javax.swing.JFrame {
             
             
             int numberOfInput = inputNumbers.size();
-            int row = numberOfInput / 10;
-            int col = numberOfInput % 10;
+            int row = numberOfInput / NO_NUMBER_PER_ROW;
+            int col = numberOfInput % NO_NUMBER_PER_ROW;
             c.fill = GridBagConstraints.HORIZONTAL;
             c.gridx = col;
             c.gridy = row;                  
-            c.weightx = 0.5;
+            c.weightx = 0.5;            
             ballNumbersPanel.add(numberLbl, c);
-            
+            lbNumbers.add(numberLbl);
             inputNumbers.add(number);
             
             ballNumbersPanel.revalidate();
@@ -430,33 +606,177 @@ public class MainLotteryForm extends javax.swing.JFrame {
             inputNumberTf.setText("");
             inputNumberTf.requestFocusInWindow();
             
-            // check if has winner
-            Date today = LotteryUtils.getNextDate(new Date());
-            if (dbTicketTables.isEmpty()) {
-                dbTicketTables = ticketTableService.getByDate(today);
-            }
+//            // check if has winner
+//            Date today = LotteryUtils.getNextDate(new Date());
+//            if (dbTicketTables.isEmpty()) {
+//                dbTicketTables = ticketTableService.getByDate(today);
+//            }
             
-            if (inputNumbers.size() < 8) {
+            totalDrawedNumbers++;
+            checkCanAddNumber();
+            
+            if (inputNumbers.size() < LotteryUtils.MAX_BALLS_PER_LINE) {
                 return;
             }
             
-            winTicketTables.addAll(LotteryUtils.isWinner(dbTicketTables, inputNumbers));
+            winTicketTables.addAll(LotteryUtils.getWinnerByLine(dbTicketTables, inputNumbers));
             
             if (winTicketTables.size() > 0) {                                                
                 // update table list view
-                WinnerTableModel model = (WinnerTableModel) tblWinners.getModel();
-                model.setData(winTicketTables);
-                model.fireTableDataChanged();
-                JOptionPane.showMessageDialog(this, "Number of winner: " + winTicketTables.size());
+                refreshWinnerTable();
+//                JOptionPane.showMessageDialog(this, "Number of winner: " + winTicketTables.size());
+            }
+            
+            // check if has full table, then stop game
+            if (totalDrawedNumbers >= (LotteryUtils.MAX_BALLS_PER_LINE * LotteryUtils.NO_LINES_PER_TABLE)) {
+                Iterator<TicketTable> iter = winTicketTables.iterator();
+                while (iter.hasNext()) {
+                    TicketTable tmp = iter.next();
+                    if (tmp.getWinType() == TicketTable.FULL_TABLE) {
+                        JOptionPane.showMessageDialog(this, "Got winner with full table!");
+                        
+                        // save draw results, update ticket_table winner
+                        DrawResult drawResult = new DrawResult();
+                        drawResult.setDrawDate(LotteryUtils.getDate(ftfDrawDate.getText().trim()));
+                        drawResult.setDrawBalls(StringUtils.join(inputNumbers, LotteryUtils.BALLS_SEPARATOR));
+                        drawResult.setRound(Byte.parseByte((String) cbbRound.getSelectedItem()));
+                        
+                        drawResultService.updateWinner(drawResult, winTicketTables);
+                        restartGame();
+                        
+                        return;
+                    }
+                }
             }
             
         } catch (NumberFormatException ex) {
-            LOGGER.error("Generate ticket exception: ", ex);
+            LOGGER.error("Invalid number!: ", ex);
             JOptionPane.showMessageDialog(this, "Invalid number!");
+        } catch (ParseException ex) {
+            LOGGER.error("Cant parse date", ex);
+            JOptionPane.showMessageDialog(this, "Cant save result!");
         }
         
-    }//GEN-LAST:event_submitInputBtnActionPerformed
+    }//GEN-LAST:event_btnAddNumberActionPerformed
 
+    private void refreshWinnerTable() {
+        WinnerTableModel model = (WinnerTableModel) tblWinners.getModel();
+        model.setData(winTicketTables);
+        model.fireTableDataChanged();
+    }
+    
+    private void checkUndoable() {
+        if (totalDrawedNumbers == 0) {
+            btnUndo.setEnabled(false);
+        } else {
+            btnUndo.setEnabled(true);
+        }
+    }
+    
+    private void checkCanAddNumber() {
+        if (!isGameRunning) {
+            btnAddNumber.setEnabled(false);
+            return;
+        }
+        
+        if (totalDrawedNumbers >= LotteryUtils.MAX_BALL_VALUE) {
+            btnAddNumber.setEnabled(false);
+        } else {
+            btnAddNumber.setEnabled(true);
+        }
+    }
+    
+    private void btnUndoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUndoActionPerformed
+//        int totalDrawedNumbers = inputNumbers.size();
+        if (totalDrawedNumbers == 0) {
+            return;
+        }
+        
+        inputNumbers.remove(totalDrawedNumbers - 1); // remove last number
+        JLabel lastAddedLabel = lbNumbers.get(totalDrawedNumbers - 1);
+        ballNumbersPanel.remove(lastAddedLabel);
+        lbNumbers.remove(lastAddedLabel);
+        
+        ballNumbersPanel.revalidate();
+        ballNumbersPanel.repaint();
+        
+        checkUndoable();
+    }//GEN-LAST:event_btnUndoActionPerformed
+
+    private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
+        try {
+            drawDate = LotteryUtils.getDate(ftfDrawDate.getText().trim());
+            byte round = Byte.parseByte((String) cbbRound.getSelectedItem());
+            
+            DrawResult existedDrawResult = drawResultService.findBy(drawDate, round);
+            if (existedDrawResult != null) {
+                JOptionPane.showMessageDialog(this, "Already drawed on " + ftfDrawDate.getText().trim() + " for round " + round);
+                return;
+            }
+            
+            dbTicketTables = ticketTableService.getByDate(drawDate);
+        } catch (ParseException ex) {
+            JOptionPane.showMessageDialog(this, "Invalid date format: dd/MM/yyyy");
+            ftfDrawDate.requestFocusInWindow();
+            return;
+        }
+//        if (dbTicketTables.isEmpty()) {
+//            dbTicketTables = ticketTableService.getByDate(today);
+//        }
+        
+        Date today = LotteryUtils.getDateWithoutTime(new Date());
+
+        if (drawDate.before(today)) {
+            JOptionPane.showMessageDialog(this, "Draw date must be greater or equal than today!");
+            ftfDrawDate.requestFocusInWindow();
+            return;
+        }
+
+        setPanelEnabled(pnSettings, false);
+        btnReplay.setEnabled(true);
+        setPanelEnabled(pnInput, true);        
+        isGameRunning = true;
+    }//GEN-LAST:event_btnStartActionPerformed
+
+    private void btnReplayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnReplayActionPerformed
+        // TODO add your handling code here:
+        int dialogResult = JOptionPane.showConfirmDialog (this, "Are you sure to restart the game?","Warning", JOptionPane.NO_OPTION);
+        if(dialogResult == JOptionPane.NO_OPTION){
+            return;
+        }
+        restartGame();
+    }//GEN-LAST:event_btnReplayActionPerformed
+
+    private void inputNumberTfKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_inputNumberTfKeyPressed
+        if(evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            btnAddNumberActionPerformed(null);
+        }
+    }//GEN-LAST:event_inputNumberTfKeyPressed
+
+    private void restartGame() {
+        resetGame();
+    }
+    
+    private void gameOver() {
+//        pnSettings
+//        pnInput.setEnabled(false);
+        isGameRunning = false;
+    }
+    
+    private void setPanelEnabled(JPanel panel, Boolean isEnabled) {
+        panel.setEnabled(isEnabled);
+        
+
+        for(int i = 0; i < panel.getComponents().length; i++) {
+            JComponent component = (JComponent) panel.getComponents()[i];
+            if(component.getClass().getName() == "javax.swing.JPanel") {
+                setPanelEnabled((JPanel) component, isEnabled);
+            }
+
+            component.setEnabled(isEnabled);
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -512,20 +832,30 @@ public class MainLotteryForm extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel ballNumbersPanel;
+    private javax.swing.JButton btnAddNumber;
     private javax.swing.JButton btnBuyTicket;
+    private javax.swing.JButton btnReplay;
     private javax.swing.JButton btnReset;
+    private javax.swing.JButton btnStart;
+    private javax.swing.JButton btnUndo;
+    private javax.swing.JComboBox<String> cbbRound;
+    private javax.swing.JFormattedTextField ftfBuyStartDate;
+    private javax.swing.JFormattedTextField ftfDrawDate;
     private javax.swing.JTextField inputNumberTf;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane2;
-    private javax.swing.JPanel pnStart;
-    private javax.swing.JButton submitInputBtn;
+    private javax.swing.JPanel pnInput;
+    private javax.swing.JPanel pnSettings;
     private javax.swing.JTable tblWinners;
     private javax.swing.JTextField tfBuyerIc;
     private javax.swing.JTextField tfBuyerName;
