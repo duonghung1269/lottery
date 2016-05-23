@@ -32,8 +32,10 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.util.CellRangeAddress;
 
 /**
  *
@@ -89,25 +91,6 @@ public class LotteryUtils {
 
     public static boolean isValidLineBall(String lineBallValue, List<String> lineBallStrings) {
         return !lineBallStrings.contains(lineBallValue);
-    }
-
-    public static void main(String[] arge) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.set(Calendar.DAY_OF_MONTH, 31);
-        cal.add(Calendar.DAY_OF_YEAR, 1);
-        int maxDayOfMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        int startDay = cal.get(Calendar.DAY_OF_MONTH) + 1; // next day
-
-        System.out.println(maxDayOfMonth);
-        System.out.println(startDay);
-
-        String s = "1 2 3 4 5";
-        String[] ss = s.split(" ");
-        List<String> l = new ArrayList<>();
-        l.addAll(Arrays.asList(ss));
-        l.add(2, "");
-        System.out.print(l);
     }
 
     /**
@@ -260,28 +243,52 @@ public class LotteryUtils {
         List<Ticket> tickets = buyer.getTickets();
         
         // Style the cell with borders all around.
-        CellStyle style = workbook.createCellStyle();
-        style.setBorderBottom(CellStyle.BORDER_THIN);
-        style.setBottomBorderColor(IndexedColors.BLUE.getIndex());
-        style.setBorderLeft(CellStyle.BORDER_THIN);
-        style.setLeftBorderColor(IndexedColors.BLUE.getIndex());
-        style.setBorderRight(CellStyle.BORDER_THIN);
-        style.setRightBorderColor(IndexedColors.BLUE.getIndex());
-        style.setBorderTop(CellStyle.BORDER_THIN);
-        style.setTopBorderColor(IndexedColors.BLUE.getIndex());
+        CellStyle borderStyle = workbook.createCellStyle();
+        borderStyle.setBorderBottom(CellStyle.BORDER_THIN);
+        borderStyle.setBottomBorderColor(IndexedColors.BLUE.getIndex());
+        borderStyle.setBorderLeft(CellStyle.BORDER_THIN);
+        borderStyle.setLeftBorderColor(IndexedColors.BLUE.getIndex());
+        borderStyle.setBorderRight(CellStyle.BORDER_THIN);
+        borderStyle.setRightBorderColor(IndexedColors.BLUE.getIndex());
+        borderStyle.setBorderTop(CellStyle.BORDER_THIN);
+        borderStyle.setTopBorderColor(IndexedColors.BLUE.getIndex());
         
-        style.setAlignment(CellStyle.ALIGN_CENTER);
-//        cell.setCellStyle(style);
+        borderStyle.setAlignment(CellStyle.ALIGN_CENTER);
+        borderStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        
+        Font font = workbook.createFont();
+        font.setFontHeightInPoints((short) 13);
+//        font.setFontName("Courier New");
+        font.setFontName("Arial");
+        font.setBoldweight(Font.BOLDWEIGHT_BOLD);
+        CellStyle boldStyle = workbook.createCellStyle();
+        boldStyle.setFont(font);
 
         
         for (int ticketIndex = 0; ticketIndex < tickets.size(); ticketIndex++) {
             Ticket ticket = tickets.get(ticketIndex);
             
+            HSSFSheet sheet = workbook.createSheet(DateFormatUtils.format(ticket.getDrawDate(), "yyyyMMdd"));
             Map<String, Object[]> data = new LinkedHashMap<>();
-            data.put("1style", new Object[]{"Name", buyer.getName()});
-            data.put("2style", new Object[]{"IC", buyer.getIc()});                        
-            data.put("3style", new Object[]{"S/N", ticket.getSerialNumber()});   
-            data.put("4style", new Object[]{"Draw Date", DateFormatUtils.format(ticket.getDrawDate(), "dd/MM/yyyy")});
+            data.put("1bold", new Object[]{"Name","", buyer.getName()});                                
+            data.put("2bold", new Object[]{"S/N","", ticket.getSerialNumber()});   
+            data.put("3bold", new Object[]{"Draw Date", "",DateFormatUtils.format(ticket.getDrawDate(), "dd/MM/yyyy")});                        
+            
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 1));
+            sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 1));
+            sheet.addMergedRegion(new CellRangeAddress(2, 2, 0, 1));
+            
+            sheet.setColumnWidth(0, 2048);
+            sheet.setColumnWidth(1, 2048);
+            sheet.setColumnWidth(2, 2048);
+            sheet.setColumnWidth(3, 2048);
+            sheet.setColumnWidth(4, 2048);
+            sheet.setColumnWidth(5, 2048);
+            sheet.setColumnWidth(6, 2048);
+            sheet.setColumnWidth(7, 2048);
+            sheet.setColumnWidth(8, 2048);
+            sheet.setColumnWidth(9, 2048);
+            
             // prepare data
             int rowNumber = 5;
 
@@ -289,33 +296,16 @@ public class LotteryUtils {
             addBlankLine(data, rowNumber++); // add 1 empty row
 
 
-            HSSFSheet sheet = workbook.createSheet(DateFormatUtils.format(ticket.getDrawDate(), "yyyyMMdd"));
-
+            
+//            sheet.setColumnWidth(ticketIndex, rowNumber);
+            
             List<TicketTable> ticketTables = ticket.getTicketTables();
 
             for (TicketTable ticketTable : ticketTables) {
                 int round = ticketTable.getRound();
                 String[] blankIndicesGroup = ticketTable.getBlankIndices().split("\\" + GROUP_BALLS_SEPARATOR);
 
-                String[] firstLineBalls = ticketTable.getFirstLine().split(BALLS_SEPARATOR);
-                String[] secondLineBalls = ticketTable.getSecondLine().split(BALLS_SEPARATOR);
-                String[] thirdLineBalls = ticketTable.getThirdLine().split(BALLS_SEPARATOR);
-
-//                List<String> firstLineBallsList = new ArrayList<>();
-//                firstLineBallsList.addAll(Arrays.asList(firstLineBalls));
-//                String[] blankIndices = blankIndicesGroup[0].split(BALLS_SEPARATOR);
-//                int firstLineBlankCell1 = Integer.parseInt(blankIndices[0]);
-//                int firstLineBlankCell2 = Integer.parseInt(blankIndices[1]);
-//                firstLineBallsList.add(firstLineBlankCell1, "");
-//                firstLineBallsList.add(firstLineBlankCell2, "");
-//
-//                Object[] objArray = new Object[NO_CELLS_PER_LINE];
-//                for (int colIndex = 0; colIndex < NO_CELLS_PER_LINE; colIndex++) {
-//                    objArray[colIndex] = firstLineBallsList.get(colIndex);
-//                }
-//                data.put(String.valueOf(rowNumber++), objArray);
-
-                data.put(String.valueOf(rowNumber++), new Object[]{"Round", round, "", "", "", "", "", "", "", ""});
+                data.put(String.valueOf(rowNumber++) + "round_bold", new Object[]{"Round " + round, "", "", "", "", "", "", "", "", ""});
                 createTicketTableLine(data, ticketTable.getFirstLine(), blankIndicesGroup[0].split(BALLS_SEPARATOR), rowNumber++);                                                
                 createTicketTableLine(data, ticketTable.getSecondLine(), blankIndicesGroup[1].split(BALLS_SEPARATOR), rowNumber++);                                
                 createTicketTableLine(data, ticketTable.getThirdLine(), blankIndicesGroup[2].split(BALLS_SEPARATOR), rowNumber++);                
@@ -361,12 +351,22 @@ public class LotteryUtils {
             int rownum = 0;
             for (String key : keyset) {
                 Row row = sheet.createRow(rownum);
+                
+                if (key.contains("tablerow")) {
+                    row.setHeightInPoints(45.75f);
+                }
+                
+                if (key.contains("round")) {
+                    sheet.addMergedRegion(new CellRangeAddress(rownum, rownum, 0, 1));
+                }
+                
                 boolean needStyle = key.contains("style");
+                boolean needBoldStyle = key.contains("bold");
                 Object[] objArr = data.get(key);
                 int cellnum = 0;
                 for (int i = 0; i < objArr.length; i++) {
                     Object obj = objArr[i];
-                    Cell cell = row.createCell(cellnum++);
+                    Cell cell = row.createCell(cellnum++);                    
                     if (obj instanceof String) {
                         cell.setCellValue((String) obj);
                     } else if (obj instanceof Integer) {
@@ -374,7 +374,9 @@ public class LotteryUtils {
                     }
                     
                     if (needStyle) {
-                        cell.setCellStyle(style);
+                        cell.setCellStyle(borderStyle);                        
+                    } else if (needBoldStyle) {
+                        cell.setCellStyle(boldStyle);
                     }
                 }
 
@@ -434,7 +436,7 @@ public class LotteryUtils {
         for (int colIndex = 0; colIndex < NO_CELLS_PER_LINE; colIndex++) {
             objArray[colIndex] = lineBallsList.get(colIndex);
         }
-        data.put(rowNumber + "style", objArray);
+        data.put(rowNumber + "tablerow_style", objArray);
     }
     
     public static Date getDate(String dateStr) throws ParseException {
@@ -442,10 +444,14 @@ public class LotteryUtils {
         return sdf.parse(dateStr);
     }        
     
+    public static String getDateStr(Date date) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        return sdf.format(date);
+    }
+    
     public static Date getDateWithoutTime(Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.add(Calendar.DAY_OF_YEAR, 1);
+        cal.setTime(date);        
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
@@ -457,13 +463,14 @@ public class LotteryUtils {
     public static Date getTargetDate(Date startDate) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDate);
-        cal.add(Calendar.DAY_OF_YEAR, 1);
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
+//        cal.add(Calendar.DAY_OF_YEAR, 1);
+//        cal.set(Calendar.HOUR_OF_DAY, 0);
+//        cal.set(Calendar.MINUTE, 0);
+//        cal.set(Calendar.SECOND, 0);
+//        cal.set(Calendar.MILLISECOND, 0);
      
         cal.add(Calendar.MONTH, 1);
-        return cal.getTime();
+        return getDateWithoutTime(cal.getTime());
+//        return cal.getTime();
     }
 }

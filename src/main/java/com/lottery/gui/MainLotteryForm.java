@@ -95,7 +95,15 @@ public class MainLotteryForm extends javax.swing.JFrame {
         WinnerTableModel model = new WinnerTableModel();
         model.setData(winTicketTables);
         tblWinners.setModel(model);
-                
+        
+        // set default date to next day
+        Date today = new Date();
+        try {
+            ftfBuyStartDate.setText(LotteryUtils.getDateStr(LotteryUtils.getNextDate(today)));
+        } catch (ParseException ex) {
+            LOGGER.error("Can parse date to string: " + today);
+        }
+        
         resetGame();
 //        pnStart.setLayout(new GridBagLayout());
 //        pnStart.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
@@ -474,6 +482,7 @@ public class MainLotteryForm extends javax.swing.JFrame {
         tfBuyerName.setText("");
         tfBuyerIc.setText("");
         tfBuyerName.requestFocusInWindow();
+        ftfBuyStartDate.setText("");
     }//GEN-LAST:event_btnResetActionPerformed
 
     private void btnBuyTicketActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuyTicketActionPerformed
