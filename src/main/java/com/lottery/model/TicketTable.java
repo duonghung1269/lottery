@@ -1,10 +1,7 @@
 package com.lottery.model;
 // Generated May 15, 2016 2:14:11 AM by Hibernate Tools 4.3.1
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -13,7 +10,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -23,6 +19,8 @@ import javax.persistence.Table;
 @Table(name = "ticket_table", catalog = "lottery"
 )
 public class TicketTable implements java.io.Serializable {
+    public static final byte FULL_LINE = 1;
+    public static final byte FULL_TABLE = 2;
 
     private Long id;
     private Ticket ticket;
@@ -32,12 +30,13 @@ public class TicketTable implements java.io.Serializable {
     private byte round;
     private String fullTable;
     private String blankIndices;
-    private List<WinTicket> winTickets = new ArrayList<>();
+    private byte winType;
+    private DrawResult drawResult;
 
     public TicketTable() {
     }
 
-    public TicketTable(Ticket ticket, String firstLine, String secondLine, String thirdLine, byte round, String fullTable, String blankIndices) {
+    public TicketTable(Ticket ticket, String firstLine, String secondLine, String thirdLine, byte round, String fullTable, String blankIndices, byte winType) {
         this.ticket = ticket;
         this.firstLine = firstLine;
         this.secondLine = secondLine;
@@ -45,9 +44,10 @@ public class TicketTable implements java.io.Serializable {
         this.round = round;
         this.fullTable = fullTable;
         this.blankIndices = blankIndices;
+        this.winType = winType;
     }
 
-    public TicketTable(Ticket ticket, String firstLine, String secondLine, String thirdLine, byte round, String fullTable, String blankIndices, List<WinTicket> winTickets) {
+    public TicketTable(Ticket ticket, String firstLine, String secondLine, String thirdLine, byte round, String fullTable, String blankIndices, byte winType, DrawResult drawResult) {
         this.ticket = ticket;
         this.firstLine = firstLine;
         this.secondLine = secondLine;
@@ -55,7 +55,7 @@ public class TicketTable implements java.io.Serializable {
         this.round = round;
         this.fullTable = fullTable;
         this.blankIndices = blankIndices;
-        this.winTickets = winTickets;
+        this.drawResult = drawResult;
     }
 
     @Id
@@ -134,15 +134,27 @@ public class TicketTable implements java.io.Serializable {
         this.blankIndices = blankIndices;
     }
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "ticketTable")
-    public List<WinTicket> getWinTickets() {
-        return this.winTickets;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "draw_result_id", nullable = true)
+    public DrawResult getDrawResult() {
+        return this.drawResult;
     }
 
-    public void setWinTickets(List<WinTicket> winTickets) {
-        this.winTickets = winTickets;
+    public void setDrawResult(DrawResult drawResult) {
+        this.drawResult = drawResult;
     }
 
+    @Column(name = "win_type", nullable = true)
+    public byte getWinType() {
+        return winType;
+    }
+
+    public void setWinType(byte winType) {
+        this.winType = winType;
+    }
+
+    
+    
     @Override
     public String toString() {
         return fullTable;

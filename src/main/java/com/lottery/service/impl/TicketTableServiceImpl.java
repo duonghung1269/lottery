@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 public class TicketTableServiceImpl extends GenericServiceImpl<TicketTable, Long> implements TicketTableService {
 
     @Resource
-    private TicketTableDao ticketTableDao;
+    private TicketTableDao ticketTableDao;    
 
     @Resource
     @Override

@@ -5,9 +5,11 @@
  */
 package com.lottery.service;
 
+import com.lottery.model.DrawResult;
 import com.lottery.model.TicketTable;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -16,5 +18,5 @@ import java.util.List;
 public interface TicketTableService extends GenericService<TicketTable, Long> {
     
     public List<TicketTable> getByDate(Date date);
-    
+           
 }
