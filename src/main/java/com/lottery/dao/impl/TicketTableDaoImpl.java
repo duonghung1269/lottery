@@ -9,7 +9,6 @@ import com.lottery.dao.TicketTableDao;
 import com.lottery.model.TicketTable;
 import java.util.Date;
 import java.util.List;
-import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -30,6 +29,17 @@ public class TicketTableDaoImpl extends GenericDaoImpl<TicketTable, Long> implem
                                           .setParameter("drawDate", date)
 //                                           .setResultTransformer(Transformers.aliasToBean(TicketTable.class))
                                           .list();
+        return list;
+    }
+
+    @Override
+    public List<TicketTable> getWinners(Date drawedDate, byte round, byte winType) {
+        final List<TicketTable> list = currentSession()
+                                        .createQuery("Select tt from TicketTable tt inner join tt.ticket t where t.drawDate = :drawDate and tt.winType = :winType and tt.round = :round")
+                                        .setParameter("drawDate", drawedDate)
+                                        .setParameter("winType", winType)
+                                        .setParameter("round", round)
+                                        .list();
         return list;
     }
     

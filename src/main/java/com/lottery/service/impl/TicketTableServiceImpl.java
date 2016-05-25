@@ -35,4 +35,9 @@ public class TicketTableServiceImpl extends GenericServiceImpl<TicketTable, Long
         return ticketTableDao.getByDate(date);
     }
 
+    @Override
+    public List<TicketTable> getWinners(Date drawedDate, byte round, byte winType) {
+        return ticketTableDao.getWinners(drawedDate, round, winType);        
+    }
+
 }

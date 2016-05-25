@@ -16,4 +16,6 @@ import java.util.List;
 public interface TicketTableDao extends GenericDao<TicketTable, Long>{
     
     public List<TicketTable> getByDate(Date date);
+    
+    public List<TicketTable> getWinners(Date drawedDate, byte round, byte winType);
 }

@@ -17,7 +17,7 @@ import javax.swing.table.AbstractTableModel;
  */
 public class WinnerTableModel extends AbstractTableModel {
 
-    private String[] columnNames = { "Name", "Serial No", "Line 1", "Line 2", "Line 3"};
+    private String[] columnNames = { "Name", "Serial No"};
     private static boolean DEBUG = true;
     private Object[][] data;
     
@@ -72,8 +72,7 @@ public class WinnerTableModel extends AbstractTableModel {
         int rowCount = 0;
         while (iter.hasNext()) {
             TicketTable winTicketTable = iter.next();
-            data[rowCount++] = new Object[]{winTicketTable.getTicket().getBuyer().getName(), winTicketTable.getTicket().getSerialNumber()
-                                    , winTicketTable.getFirstLine(), winTicketTable.getSecondLine(), winTicketTable.getThirdLine()};
+            data[rowCount++] = new Object[]{winTicketTable.getTicket().getBuyer().getName(), winTicketTable.getTicket().getSerialNumber()};
         }
     }
 
